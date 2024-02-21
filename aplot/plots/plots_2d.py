@@ -1,9 +1,10 @@
 import typing as _t
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 
 from . import utils
 
@@ -22,7 +23,7 @@ def imshow_kwds(
 
 @utils.plot_decorator
 def imshow(
-    ax: _t.Union[plt.Axes, _t.List[plt.Axes], _t.List[_t.List[plt.Axes]]],
+    ax: _t.Union[Axes, _t.List[Axes], _t.List[_t.List[Axes]]],
     data: np.ndarray,
     x: _t.Optional[np.ndarray] = None,
     y: _t.Optional[np.ndarray] = None,
@@ -31,27 +32,35 @@ def imshow(
     if isinstance(ax, (tuple, list, np.ndarray)):
         return utils.run_plot_on_axes_list(imshow, ax, data, x=x, y=y, **kwargs)
 
-    if x is not None and y is not None and (len(data) != len(y) or len(data[0]) != len(x)):
-        raise ValueError(f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}")
+    if (
+        x is not None
+        and y is not None
+        and (len(data) != len(y) or len(data[0]) != len(x))
+    ):
+        raise ValueError(
+            f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}"
+        )
 
     im = ax.imshow(
         data,
         **imshow_kwds(x, y),
-        **utils.filter_set_kwargs(mpl.image.AxesImage, **kwargs),
+        **utils.filter_set_kwargs(mpl.image.AxesImage, **kwargs),  # type: ignore
     )
     if kwargs.get("colorbar", True):
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
-        fig = ax.get_figure()
+        fig: _t.Optional[Figure] = ax.get_figure()
+        if fig is None:
+            raise ValueError("The figure is None cannot add colorbar")
         cbar = fig.colorbar(im, cax=cax, orientation="vertical")
-        cbar.ax.set_ylabel(kwargs.get("bar_label"))
+        cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
     utils.set_params(ax, **kwargs)
     return im
 
 
 @utils.plot_decorator
 def pcolorfast(
-    ax: plt.Axes,
+    ax: Axes,
     x: _t.Optional[np.ndarray],
     y: _t.Optional[np.ndarray],
     data: np.ndarray,
@@ -73,6 +82,8 @@ def pcolorfast(
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     fig = ax.get_figure()
+    if fig is None:
+        raise ValueError("The figure is None cannot add colorbar")
     cbar = fig.colorbar(im, cax=cax, orientation="vertical")
-    cbar.ax.set_ylabel(kwargs.get("barlabel"))
+    cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
     return im

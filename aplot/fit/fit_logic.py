@@ -12,17 +12,23 @@ def param_len(cls):
     return len(cls.__annotations__)
 
 
+FLOAT = _t.Union[float, np.float_]
+
+
 class FitResult(_t.Tuple[_t.Optional[_R], _t.Callable]):
     """
     Represents the result of a fit operation.
 
     Attributes:
         res: The result of the fit operation.
-        res_func: A callable function that takes a numpy array as input and returns a numpy array as output.
+        res_func: A callable function that takes a numpy array as input
+        and returns a numpy array as output.
     """
 
     res: _t.Optional[_R]
-    res_func: _t.Optional[_t.Callable[[np.ndarray], np.ndarray]]
+    res_func: _t.Optional[
+        _t.Union[_t.Callable[[np.ndarray], np.ndarray], _t.Callable[..., None]]
+    ]
 
     def __init__(
         self,
@@ -67,7 +73,8 @@ class FitLogic(_t.Generic[_T]):
     - func: Abstract method for the fitting function.
     - _guess: Abstract method for guessing initial fit parameters.
     - fit: Fits the data using the specified fitting function.
-    - sfit: Fits the data using the specified fitting function with simulated annealing.
+    - sfit: Fits the data using the specified fitting function
+        with simulated annealing.
     - guess: Guesses the initial fit parameters.
     - error: Calculates the error between the fitted function and the data.
     - get_mask: Returns a mask array based on the provided mask or threshold.
@@ -76,7 +83,7 @@ class FitLogic(_t.Generic[_T]):
     - param: The parameter type for the fit.
     """
 
-    param: abc.ABCMeta
+    param: _t.Type
 
     def __init__(self, *args, **kwargs):
         """Initialize the FitLogic instance.
@@ -89,8 +96,8 @@ class FitLogic(_t.Generic[_T]):
         for k, v in kwargs.items():
             setattr(self, f"_{k}", v)
 
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def func(x, *args, **kwargs):
         """Abstract method for the fitting function.
 
@@ -100,8 +107,8 @@ class FitLogic(_t.Generic[_T]):
         - kwargs: Keyword arguments.
         """
 
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def _guess(x, y, **kwargs):
         """Abstract method for guessing initial fit parameters.
 
@@ -130,7 +137,8 @@ class FitLogic(_t.Generic[_T]):
         - kwargs: Additional keyword arguments.
 
         Returns:
-        - FitResult: The result of the fit, including the fitted parameters and the fitted function.
+        - FitResult: The result of the fit, including the fitted parameters
+            and the fitted function.
         """
         mask = cls.get_mask(mask, x)
 
@@ -143,8 +151,10 @@ class FitLogic(_t.Generic[_T]):
         if guess is None:
             guess = cls._guess(x[mask], data[mask], **kwargs)
 
-        res, _ = optimize.leastsq(to_minimize, guess, maxfev=5000)  # full_output=True)
-        # res, _, infodict, _, _ = leastsq(to_minimize, guess, full_output=True)
+        res, _ = optimize.leastsq(to_minimize, guess, maxfev=5000)
+        # full_output=True)
+        # res, _, infodict, _, _ = \
+        # leastsq(to_minimize, guess, full_output=True)
 
         return FitResult(cls.param(*res), lambda x: cls.func(x, *res))
 
@@ -158,7 +168,8 @@ class FitLogic(_t.Generic[_T]):
         T: int = 1,
         **kwargs,
     ) -> FitResult[_T]:
-        """Fit the data using the specified fitting function with simulated annealing.
+        """Fit the data using the specified fitting function with simulated
+            annealing.
 
         Parameters:
         - x: The independent variable.
@@ -169,7 +180,8 @@ class FitLogic(_t.Generic[_T]):
         - kwargs: Additional keyword arguments.
 
         Returns:
-        - FitResult: The result of the fit, including the fitted parameters and the fitted function.
+        - FitResult: The result of the fit, including the fitted parameters
+            and the fitted function.
         """
         mask = cls.get_mask(mask, x)
 
@@ -183,14 +195,19 @@ class FitLogic(_t.Generic[_T]):
             func=to_minimize,
             x0=guess,
             T=T,
-            # minimizer_kwargs={"jac": lambda params: chisq_jac(sin_jac, x, y_data, params)}
+            # minimizer_kwargs={"jac": lambda params:
+            # chisq_jac(sin_jac, x, y_data, params)}
         ).x
 
         return FitResult(cls.param(*res), lambda x: cls.func(x, *res))
 
     @classmethod
     def guess(
-        cls, x, y, mask: _t.Optional[_t.Union[np.ndarray, float]] = None, **kwargs
+        cls,
+        x,
+        y,
+        mask: _t.Optional[_t.Union[np.ndarray, float]] = None,
+        **kwargs,
     ) -> _t.Tuple[_T, _t.Callable]:
         """Guess the initial fit parameters.
 
@@ -201,7 +218,8 @@ class FitLogic(_t.Generic[_T]):
         - kwargs: Additional keyword arguments.
 
         Returns:
-        - Tuple[_T, _t.Callable]: The guessed fit parameters and the fitted function.
+        - Tuple[_T, _t.Callable]: The guessed fit parameters and the
+            fitted function.
         """
         mask = cls.get_mask(mask, x)
         guess_param = cls._guess(x[mask], y[mask], **kwargs)
@@ -238,7 +256,11 @@ class FitLogic(_t.Generic[_T]):
         - np.ndarray: The mask array.
         """
         if mask is None:
-            return [True] * len(x)
-        elif isinstance(mask, (int, float)) and x is not None:
+            if x is None:
+                raise ValueError("Either mask or x must be provided.")
+            return np.array([True] * len(x))
+        elif isinstance(mask, (int, float)):
+            if x is None:
+                raise ValueError("Either mask or x must be provided.")
             return x < mask
         return mask

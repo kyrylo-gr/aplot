@@ -1,10 +1,11 @@
 import typing as _t
 
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 
 
-def display_limits(fig: plt.Figure):
-    axes: _t.List[plt.Axes] = fig.get_axes()
+def display_limits(fig: Figure):
+    axes: _t.List[Axes] = fig.get_axes()
 
     import ipywidgets as widgets
     from IPython.display import display
@@ -17,7 +18,7 @@ def display_limits(fig: plt.Figure):
 
     display(zoom_text)
 
-    def update_zoom_text(ax: plt.Axes):
+    def update_zoom_text(ax: Axes):
         x_min, x_max = ax.get_xlim()
         y_min, y_max = ax.get_ylim()
 

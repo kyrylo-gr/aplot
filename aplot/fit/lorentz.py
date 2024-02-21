@@ -2,7 +2,7 @@ import typing as _t
 
 import numpy as np
 
-from .fit_logic import FitLogic
+from .fit_logic import FitLogic, FLOAT
 
 
 class LorentzParam(_t.NamedTuple):
@@ -16,16 +16,29 @@ class LorentzParam(_t.NamedTuple):
 
 
 class LorentzComplex(FitLogic[LorentzParam]):
-    param: _t.Tuple[LorentzParam] = LorentzParam
+    param: _t.Type[LorentzParam] = LorentzParam
 
     @staticmethod
-    def func(freqs, f0, ampl, bandwidth, phi0, ampl0, delay, phaseampl):
+    def func(  # pylint: disable=W0221 # type: ignore
+        freqs: np.ndarray,
+        f0: FLOAT,
+        ampl: FLOAT,
+        bandwidth: FLOAT,
+        phi0: FLOAT,
+        ampl0: FLOAT,
+        delay: FLOAT,
+        phaseampl,
+    ):
         orig = ampl0 * np.exp(1j * phi0)
-        return (orig - np.exp(1j * phaseampl) * ampl / (1j * (freqs - f0) / (bandwidth) + 1)) * 1
+        return (
+            orig - np.exp(1j * phaseampl) * ampl / (1j * (freqs - f0) / (bandwidth) + 1)
+        ) * 1
         # np.exp(1j * 2 * np.pi * (freqs - f0) * delay)
 
     @staticmethod
-    def _guess(freqs, zs, **kwargs):
+    def _guess(  # pylint: disable=W0221 # type: ignore
+        freqs: np.ndarray, zs: np.ndarray, **kwargs
+    ):
         """
         Estimate the parameters for fitting a model to the given frequency and impedance data.
 

@@ -12,10 +12,15 @@ class CosParam(_t.NamedTuple):
 
 
 class Cos(FitLogic[CosParam]):
-    param: _t.Tuple[CosParam] = CosParam
+    param: _t.Type[CosParam] = CosParam
 
     @staticmethod
-    def func(x, amplitude, period, offset):  # pylint: disable=W0221
+    def func(  # pylint: disable=W0221 # type: ignore
+        x,
+        amplitude,
+        period,
+        offset,
+    ):
         """Calculate the value of a cosine function at a given x-coordinate.
 
         Parameters:
@@ -30,7 +35,7 @@ class Cos(FitLogic[CosParam]):
         return np.cos(2 * np.pi * x / period) * amplitude + offset
 
     @staticmethod
-    def _guess(x, y, **kwargs):
+    def _guess(x, y, **kwargs):  # pylint: disable=W0221 # type: ignore
         """Guess the initial parameters for fitting a curve to the given data.
 
         Parameters:
@@ -43,8 +48,8 @@ class Cos(FitLogic[CosParam]):
 
         Returns:
         - list
-            A list containing the initial parameter guesses for fitting the curve.
-            The list contains the following elements:
+            A list containing the initial parameter guesses for fitting
+                the curve. The list contains the following elements:
             - sign_ * amp_guess: float
                 The amplitude guess for the curve.
             - period: float

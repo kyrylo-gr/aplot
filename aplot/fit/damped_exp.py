@@ -12,12 +12,16 @@ class DampedExpParam(_t.NamedTuple):
 
 
 class DampedExp(FitLogic[DampedExpParam]):
-    param: _t.Tuple[DampedExpParam] = DampedExpParam
+    param: _t.Type[DampedExpParam] = DampedExpParam
 
     @staticmethod
-    def func(x, amplitude, tau, offset):
+    def func(  # pylint: disable=W0221 # type: ignore
+        x: np.ndarray, amplitude: float, tau: float, offset: float
+    ):
         return np.exp(-x / tau) * amplitude + offset
 
     @staticmethod
-    def _guess(x, y, **kwargs):
+    def _guess(  # pylint: disable=W0221 # type: ignore
+        x: np.ndarray, y: np.ndarray, **kwargs
+    ):
         return np.max(y) - np.min(y), (np.max(x) - np.min(x)) / 5, np.mean(y)
