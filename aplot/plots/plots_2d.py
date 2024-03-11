@@ -2,11 +2,17 @@ import typing as _t
 
 import matplotlib as mpl
 import numpy as np
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from . import utils
+
+
+class ImageResult(_t.NamedTuple):
+    axes: _t.Union[Axes, _t.List[Axes], _t.List[_t.List[Axes]]]
+    im: mpl.image.AxesImage
+    cbar: _t.Any
 
 
 def imshow_kwds(
@@ -27,24 +33,21 @@ def imshow(
     data: np.ndarray,
     x: _t.Optional[np.ndarray] = None,
     y: _t.Optional[np.ndarray] = None,
+    labels: _t.Optional[dict] = None,
     **kwargs,
 ):
+    utils.push_labels_to_kwargs(labels, kwargs)
+
     if isinstance(ax, (tuple, list, np.ndarray)):
         return utils.run_plot_on_axes_list(imshow, ax, data, x=x, y=y, **kwargs)
 
-    if (
-        x is not None
-        and y is not None
-        and (len(data) != len(y) or len(data[0]) != len(x))
-    ):
-        raise ValueError(
-            f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}"
-        )
+    if x is not None and y is not None and (len(data) != len(y) or len(data[0]) != len(x)):
+        raise ValueError(f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}")
 
     im = ax.imshow(
         data,
         **imshow_kwds(x, y),
-        **utils.filter_set_kwargs(mpl.image.AxesImage, **kwargs),  # type: ignore
+        **utils.filter_set_kwargs(mpl.image.AxesImage, ["vmin", "vmax", "norm"], **kwargs),  # type: ignore
     )
     if kwargs.get("colorbar", True):
         divider = make_axes_locatable(ax)
@@ -55,7 +58,7 @@ def imshow(
         cbar = fig.colorbar(im, cax=cax, orientation="vertical")
         cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
     utils.set_params(ax, **kwargs)
-    return im
+    return ImageResult(ax, im, cbar)
 
 
 @utils.plot_decorator
@@ -86,4 +89,4 @@ def pcolorfast(
         raise ValueError("The figure is None cannot add colorbar")
     cbar = fig.colorbar(im, cax=cax, orientation="vertical")
     cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
-    return im
+    return ImageResult(ax, im, cbar)

@@ -26,7 +26,7 @@ GUESS = LabelDict({"color": colors[2], "linewidth": 2, "label": "guess", "alpha"
 VOLT_TIME = LabelDict(
     {
         "xlabel": "Voltage, V",
-        "ylabel": "Time, $\mu$s",
+        "ylabel": r"Time, $\mu$s",
     }
 )
 IQquadrature = LabelDict(

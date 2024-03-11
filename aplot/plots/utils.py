@@ -84,9 +84,11 @@ def run_plot_on_axes_list(func, axes, data, *args, **kwargs):
     return
 
 
-def filter_set_kwargs(obj, **kwargs):
+def filter_set_kwargs(obj, additional_: _t.Optional[_t.List[str]] = None, **kwargs):
     """Filter kwargs to one that can be set with set_... method."""
     for k in list(kwargs.keys()):
+        if additional_ and k in additional_:
+            continue
         func = getattr(obj, f"set_{k}", None)
         if not callable(func):
             kwargs.pop(k)

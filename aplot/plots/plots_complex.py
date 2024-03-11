@@ -46,6 +46,9 @@ def plot_z_1d(
     axes[0].plot(x, data1, **utils.filter_set_kwargs(mpl.lines.Line2D, **kwargs_without_xlabel))
     axes[1].plot(x, data2, **utils.filter_set_kwargs(mpl.lines.Line2D, **kwargs))
 
+    utils.set_params(axes[0], **kwargs_without_xlabel)
+    utils.set_params(axes[1], **kwargs)
+
     return axes
 
 
@@ -76,6 +79,10 @@ def plot_z_2d(
     imshow(axes[0], data1, x=x, y=y, **kwargs_without_xlabel)
     im = axes[1].pcolor(x, y, data2)
     plt.colorbar(im, ax=axes[1])
+
+    utils.set_params(axes[0], **kwargs_without_xlabel)
+    utils.set_params(axes[1], **kwargs)
+
     return axes
 
 

@@ -6,3 +6,4 @@ from .plots_complex import *
 from .plots_fitted import *
 from .plots_histograms import *
 from .plots_qubit_specific import *
+from .utils import run_map, suptitle
