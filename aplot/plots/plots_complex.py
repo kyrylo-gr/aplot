@@ -6,7 +6,7 @@ import numpy as np
 
 from .. import styles
 from . import utils
-from .plots_2d import imshow
+from .plots_2d import imshow, pcolorfast  # noqa: F401
 from .plots_histograms import plot_2d_histograms
 
 
@@ -58,13 +58,15 @@ def plot_z_2d(
     y: np.ndarray,
     z: np.ndarray,
     plot_format: _t.Literal["bode", "real_imag"] = "bode",
+    unwrap: bool = True,
     # cmap: _t.Optional[str] = None,
     **kwargs,
 ):
     if plot_format == "bode":
         data1 = 20 * np.log10(np.abs(z))
         data2 = np.angle(z) * 180 / np.pi
-        data2 = np.unwrap(data2, period=360)
+        if unwrap:
+            data2 = np.unwrap(data2, period=360)
         axes[0].set_title("Amplitude")
         axes[1].set_title("Phase")
     elif plot_format == "real_imag":
@@ -76,7 +78,11 @@ def plot_z_2d(
         raise ValueError("Plot_format should be either bode or real_imag")
 
     kwargs_without_xlabel = utils.pop_from_dict(kwargs, "xlabel")
-    imshow(axes[0], data1, x=x, y=y, **kwargs_without_xlabel)
+    # pcolorfast(axes[0], data=data1, x=x, y=y, **kwargs_without_xlabel)
+    # pcolorfast(axes[1], x=x, y=y, data=data2)
+    im = axes[0].pcolor(x, y, data1)
+    plt.colorbar(im, ax=axes[0])
+
     im = axes[1].pcolor(x, y, data2)
     plt.colorbar(im, ax=axes[1])
 
