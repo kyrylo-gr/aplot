@@ -1,6 +1,8 @@
 # flake8: noqa: F401
 
-from . import analysis, fit, styles
-from .plots import *
+# from . import analysis, styles
+from .core import ax, figure_class, subplot, subplots
 
-s = styles
+# from .plots import *
+
+# s = styles

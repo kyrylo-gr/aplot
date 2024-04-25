@@ -22,6 +22,7 @@ theme:
     - navigation.sections
     - search.suggest
     - search.highlight
+copyright: Library published by <a href="//kyrylo.gr/" target="_blank">kyrylo.gr</a> © 2024
 extra_css:
   - stylesheets/extra.css
 

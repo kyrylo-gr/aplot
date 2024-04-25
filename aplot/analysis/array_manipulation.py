@@ -3,11 +3,13 @@ import typing as _t
 import numpy as np
 import scipy
 
+ArrayLike = _t.Union[np.ndarray, _t.List]
+
 
 def argmin2d(
     d: np.ndarray,
-    x_mask: _t.Optional[_t.Union[_t.Tuple[int, int], _t.List]] = None,
-    y_mask: _t.Optional[_t.Union[_t.Tuple[int, int], _t.List]] = None,
+    x_mask: _t.Optional[_t.Union[_t.Tuple[int, int], ArrayLike]] = None,
+    y_mask: _t.Optional[_t.Union[_t.Tuple[int, int], ArrayLike]] = None,
     filter_: _t.Optional[int] = None,
 ) -> _t.Tuple[int, int]:
     """Find the indexes of the minimum of the specified 2d array. Ignores np.nan.
@@ -34,16 +36,18 @@ def argmin2d(
             d[:, 0 : x_mask[0]] = np.nan
             d[:, x_mask[1] + 1 :] = np.nan
         else:
+            x_mask = np.array(x_mask)
             d[:, ~x_mask] = np.nan
     if y_mask is not None:
         if isinstance(y_mask, tuple):
             d[0 : y_mask[0], :] = np.nan
             d[y_mask[1] + 1 :, :] = np.nan
         else:
+            y_mask = np.array(y_mask)
             d[~y_mask, :] = np.nan
 
     shape = d.shape
-    index = np.nanargmin(d)
+    index: int = np.nanargmin(d)  # type: ignore
     return index // shape[1], index % shape[1]
 
 
