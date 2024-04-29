@@ -1,4 +1,4 @@
-# import typing as _t
+import typing as _t
 
 import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
@@ -20,7 +20,7 @@ def figure(
     frameon=True,
     FigureClass=AFigure,
     clear=False,
-    **kwargs
+    **kwargs,
 ):
     return plt.figure(
         num=num,
@@ -31,7 +31,7 @@ def figure(
         frameon=frameon,
         FigureClass=FigureClass,
         clear=clear,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -46,7 +46,7 @@ def subplots(
     height_ratios=None,
     subplot_kw=None,
     gridspec_kw=None,
-    **fig_kw
+    **fig_kw,
 ):
     fig_kw.update({"FigureClass": AFigure})
 
@@ -60,7 +60,7 @@ def subplots(
         height_ratios=height_ratios,
         subplot_kw=subplot_kw,  # type: ignore
         gridspec_kw=gridspec_kw,  # type: ignore
-        **fig_kw
+        **fig_kw,
     )
     if nrows == 1 and ncols == 1:
         return fig, axes
@@ -70,6 +70,15 @@ def subplots(
     for row in axes:
         res.append(AxesList(row))
     return fig, AxesList(res)
+
+
+def axs(nrows: int | AAxes | _t.List[AAxes] | "AxesList" = 1, ncols: int = 1, /, **kwargs):
+    if isinstance(nrows, (AAxes, AxesList)):
+        return nrows
+    if isinstance(nrows, list):
+        return AxesList(nrows)
+
+    return subplots(nrows=nrows, ncols=ncols, **kwargs)
 
 
 def subplot(*args, **kwargs) -> AAxes:

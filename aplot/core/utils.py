@@ -80,7 +80,8 @@ def var_to_label(var: str) -> str:
     var = var.strip().replace("__", ", ").replace("_", " ")
     if not var:
         return var
-    var = var.title()
+    if len(var) > 1:
+        var = var[0].title() + var[1:]
     return var
 
 

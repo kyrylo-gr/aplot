@@ -1,4 +1,3 @@
-import re
 import typing as _t
 
 import numpy as np
@@ -327,7 +326,7 @@ class AAxes(
         cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
         return self
 
-    def autoaxis(self, level: int = 0, func_name="plot"):
+    def autoaxis(self, level: int = 0, func_name="plot") -> "AAxes":
         variables = get_auto_args(level, func_name)
         # print(variables)
         if variables and len(variables) >= 2:
