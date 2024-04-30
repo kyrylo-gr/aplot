@@ -19,12 +19,7 @@ from matplotlib.collections import (
     QuadMesh,
 )
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.container import (
-    BarContainer,
-    Container,
-    ErrorbarContainer,
-    StemContainer,
-)
+from matplotlib.container import BarContainer, Container, ErrorbarContainer, StemContainer
 from matplotlib.contour import QuadContourSet
 from matplotlib.figure import Figure
 from matplotlib.image import AxesImage, PcolorImage
@@ -39,6 +34,8 @@ from matplotlib.text import Annotation, Text
 from matplotlib.ticker import Formatter
 from matplotlib.transforms import Bbox, BboxTransformTo, Transform
 from numpy.typing import ArrayLike
+
+from .figure_class import AFigure
 
 # from matplotlib._typing import ArrayLike, Color, Scalar
 Color = tuple[float, float, float] | str
@@ -61,7 +58,8 @@ class AAxes(MplAxes, Generic[_T]):
     fmt_xdata: None | Formatter = ...
     fmt_ydata: None | Formatter = ...
     cursor_to_use: Cursors = ...
-
+    figure: AFigure = ...
+    fig: AFigure = ...
     def set_title(  # type: ignore
         self,
         label: str,
@@ -811,10 +809,10 @@ class AAxes(MplAxes, Generic[_T]):
     def z_parametric(self, z: ArrayLike, **kwargs) -> "AAxes[Line2D]": ...
     def autoaxis(self, level: int = 0, func_name: str = ...) -> "AAxes": ...
     def tight_layout(
-        self,
+        self: _S,
         *,
         pad: float = ...,
         h_pad: float = ...,
         w_pad: float = ...,
         rect: Sequence[float] = ...
-    ): ...
+    ) -> _S: ...

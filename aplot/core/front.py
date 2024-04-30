@@ -72,13 +72,24 @@ def subplots(
     return fig, AxesList(res)
 
 
-def axs(nrows: int | AAxes | _t.List[AAxes] | "AxesList" = 1, ncols: int = 1, /, **kwargs):
+def axs(
+    nrows: int | AAxes | _t.List[AAxes] | _t.List[int] | "AxesList" = 1,
+    ncols: int = 1,
+    /,
+    **kwargs,
+):
     if isinstance(nrows, (AAxes, AxesList)):
         return nrows
-    if isinstance(nrows, list):
-        return AxesList(nrows)
+    if isinstance(nrows, _t.Iterable):
+        if isinstance(nrows[0], int):
+            axes = []
+            for pos in nrows:
+                axes.append(ax(pos))
+            return AxesList(axes)
+        return AxesList(list(nrows))
 
-    return subplots(nrows=nrows, ncols=ncols, **kwargs)
+    _, axes = subplots(nrows=nrows, ncols=ncols, **kwargs)
+    return axes
 
 
 def subplot(*args, **kwargs) -> AAxes:

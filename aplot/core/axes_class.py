@@ -1,21 +1,16 @@
 import typing as _t
 
 import numpy as np
-from ffit import FIT_FUNCTIONS
-from ffit.fit_results import FitResult
+
+# from ffit import FIT_FUNCTIONS
+# from ffit.fit_results import FitResult
 from matplotlib.axes import Axes as MplAxes
 from matplotlib.collections import QuadMesh
 from matplotlib.image import AxesImage
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from .typing import NoneType, noneType
-from .utils import (
-    filter_none,
-    filter_none_types,
-    filter_set_kwargs,
-    get_auto_args,
-    imshow_kwds,
-)
+from .utils import filter_none, filter_none_types, filter_set_kwargs, get_auto_args, imshow_kwds
 
 # def ([\w]+)\([\w,:\[\]=\*#.|*"\n\t\s]+\) -> ["\w\[\],.]+: (\.\.\.)
 _T = _t.TypeVar("_T")
@@ -131,42 +126,46 @@ class AAxes(
 ):
     name = "AAxis"  # Give a name for the matplotlib registry
     _last_result = None
-    _fit_result: FitResult | None = None
+    # _fit_result: FitResult | None = None
     # __all__ = MplAxes.__all__ + ["fit", "last_result", "fit_result", "res", "set"]
     # __dict__ = MplAxes.__dict__  ("fit", "last_result", "fit_result", "res", "set")
 
-    def fit(self, func: str, *args, **kwargs):
-        lines = self.get_lines()
-        if not lines:
-            raise ValueError("No lines found in the axes.")
-        line = lines[0]
-        x = np.array(line.get_xdata())
-        y = np.array(line.get_ydata())
+    # def fit(self, func: str, *args, **kwargs):
+    #     lines = self.get_lines()
+    #     if not lines:
+    #         raise ValueError("No lines found in the axes.")
+    #     line = lines[0]
+    #     x = np.array(line.get_xdata())
+    #     y = np.array(line.get_ydata())
 
-        if isinstance(func, str):
-            if func not in FIT_FUNCTIONS:
-                raise ValueError(
-                    f"Function {func} not found in the fit functions."
-                    f"Possible fit functions ara {list(FIT_FUNCTIONS.keys())}."
-                    "You can also pass a callable function."
-                )
-            fit_func = FIT_FUNCTIONS[func]
-            self._fit_result = fit_func.fit(x=x, data=y, *args, **kwargs).plot(ax=self, **kwargs)
-        else:
-            raise NotImplementedError("Custom fit functions are not implemented yet.")
-        return self
+    #     if isinstance(func, str):
+    #         if func not in FIT_FUNCTIONS:
+    #             raise ValueError(
+    #                 f"Function {func} not found in the fit functions."
+    #                 f"Possible fit functions ara {list(FIT_FUNCTIONS.keys())}."
+    #                 "You can also pass a callable function."
+    #             )
+    #         fit_func = FIT_FUNCTIONS[func]
+    #         self._fit_result = fit_func.fit(x=x, data=y, *args, **kwargs).plot(ax=self, **kwargs)
+    #     else:
+    #         raise NotImplementedError("Custom fit functions are not implemented yet.")
+    #     return self
 
     @property
     def last_result(self) -> _T:
         return self._last_result  # type: ignore
 
-    @property
-    def fit_result(self) -> FitResult | None:
-        return self._fit_result
+    # @property
+    # def fit_result(self) -> FitResult | None:
+    #     return self._fit_result
 
     @property
     def res(self) -> _T:
         return self._last_result  # type: ignore
+
+    @property
+    def fig(self):
+        return self.figure
 
     def __getattribute__(self, name: str):
         # if hasattr(self, name):
@@ -254,7 +253,7 @@ class AAxes(
         filterrad=4.0,
         resample=None,
         url=None,
-        colorbar=True,
+        colorbar: bool = True,
         **kwargs,
     ):
         if x is not None and y is not None and (len(data) != len(y) or len(data[0]) != len(x)):
@@ -277,7 +276,6 @@ class AAxes(
                 filterrad=filterrad,
                 resample=resample,
                 url=url,
-                colorbar=colorbar,
             )
         )
 
@@ -287,7 +285,7 @@ class AAxes(
             **filter_set_kwargs(AxesImage, **kwargs),
         )
 
-        if kwargs.get("colorbar", True):
+        if colorbar:
             divider = make_axes_locatable(self)
             cax = divider.append_axes("right", size="5%", pad=0.05)
             fig: _t.Optional[AFigure] = self.get_figure()  # type: ignore
@@ -302,19 +300,35 @@ class AAxes(
 
     def pcolorfast(  # type: ignore
         self,
-        x: _t.Optional[np.ndarray],
-        y: _t.Optional[np.ndarray],
-        data: np.ndarray,
+        *args,
+        x: _t.Optional[np.ndarray] = None,
+        y: _t.Optional[np.ndarray] = None,
+        data: _t.Optional[np.ndarray] = None,
         labels: _t.Optional[dict] = None,
+        colorbar: bool = True,
         **kwargs,
     ):
+        if len(args) == 1:
+            data = args[0]
+        elif len(args) == 3:
+            x, y, data = args
+        elif len(args) > 0:
+            raise ValueError(f"Wrong number of arguments: {len(args)}. Should be 0, 1 or 3.")
 
-        im, _, _ = super().pcolorfast(
-            x=x,
-            y=y,
-            data=data,
-            **filter_set_kwargs(AxesImage, **kwargs),
-        )
+        if data is None:
+            raise ValueError("Data should be provided")
+        if x is not None and y is not None:
+            im = super().pcolorfast(
+                x,
+                y,
+                data,
+                # **filter_set_kwargs(AxesImage, **kwargs),
+            )
+        else:
+            im = super().pcolorfast(
+                data,
+                # **filter_set_kwargs(AxesImage, **kwargs),
+            )
 
         # utils.set_params(ax, **kwargs)
         divider = make_axes_locatable(self)
@@ -322,8 +336,9 @@ class AAxes(
         fig = self.get_figure()
         if fig is None:
             raise ValueError("The figure is None cannot add colorbar")
-        cbar = fig.colorbar(im, cax=cax, orientation="vertical")
-        cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
+        if colorbar:
+            cbar = fig.colorbar(im, cax=cax, orientation="vertical")
+            cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
         return self
 
     def autoaxis(self, level: int = 0, func_name="plot") -> "AAxes":
@@ -335,3 +350,13 @@ class AAxes(
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         self.figure.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)  # type: ignore
+
+    def plot(self, *args, keep_xlims: bool = False, keep_ylims: bool = False, **kwargs):
+        xlims = self.get_xlim() if keep_xlims else None
+        ylims = self.get_ylim() if keep_ylims else None
+        res = super().plot(*args, **kwargs)
+        if xlims is not None:
+            self.set_xlim(*xlims)
+        if ylims is not None:
+            self.set_ylim(*ylims)
+        return res
