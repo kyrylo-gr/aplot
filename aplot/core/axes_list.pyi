@@ -1,6 +1,16 @@
 # flake8: noqa: E302, E704
 import datetime
-from typing import Any, Callable, List, Literal, Sequence, TypeVar, Union, overload
+from typing import (
+    Any,
+    Callable,
+    List,
+    Literal,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
 import numpy as np
 from matplotlib.artist import Artist
@@ -831,3 +841,7 @@ class AxesList(List[_T]):
     ) -> _S: ...
     def map(self: _S, func: Callable[[AAxes], Any]) -> _S: ...
     def suptitle(self: _S, title: str) -> _S: ...
+    def __getitem__(
+        self,
+        key: Union[int, Tuple[Union[int, slice], ...], slice],
+    ) -> _T: ...  # type: ignore

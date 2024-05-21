@@ -175,4 +175,28 @@ class AxesList(_t.List[_T]):
         return mapping
         # return super().__getattribute__(key)
 
-    # TODO: if self[0] has a method, then call it on all axes
+    def __getitem__(self, key: _t.Union[int, _t.Tuple[int, ...]]):  # type: ignore
+        if isinstance(key, tuple):
+            res = self
+            if len(key) == 1:
+                res = self[key[0]]
+            elif len(key) == 2:
+                key1, key2 = key
+                res = self[key1]
+                if isinstance(key1, slice):
+                    res2 = []
+                    for r in res:
+                        rr = r[key2]
+                        if not isinstance(rr, AxesList):
+                            rr = AxesList(rr)
+                        res2.append(rr)
+                    res = res2
+                else:
+                    res = res[key2]
+            else:
+                raise ValueError("tuple len should <= 2")
+            if not isinstance(res, AxesList):
+                return AxesList(res)
+            return res
+
+        return super(AxesList, self).__getitem__(key)
