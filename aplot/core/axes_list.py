@@ -8,7 +8,8 @@ from .utils import filter_set_kwargs, pop_from_dict
 # from matplotlib import pyplot as plt
 
 
-_T = _t.TypeVar("_T", bound="AAxes|AxesList")
+_T = _t.TypeVar("_T", bound="AAxes[_t.Any]|AxesList[AxesList]|AxesList[AAxes]")
+_L = _t.TypeVar("_L", bound="AxesList[AAxes]|AxesList[AxesList]")
 
 
 class AxesList(_t.List[_T]):
@@ -23,7 +24,11 @@ class AxesList(_t.List[_T]):
                     ax.set(**{k: v})
         return self
 
-    # def __getitem__(self, k):
+    # def __getitem__(self, item):
+    #     # print(item, len(self))
+    #     if item >= len(self):
+    #         return self.__getitem__(item % len(self))[item // len(self)]
+    #     return super().__getitem__(item)
 
     def plot(self, x, data, *args, scalex: bool = True, scaley: bool = True, **kwargs):
         if len(x) != len(data):
@@ -35,9 +40,11 @@ class AxesList(_t.List[_T]):
                 ax.plot(x, data[i], *args, **kwargs)
         else:
             if len(data) != len(self):
-                raise ValueError("Data should be the same length as the number of axes")
-            for i, ax in enumerate(self):
-                ax.plot(x[i], data[i], *args, **kwargs)
+                for ax in self:
+                    ax.plot(x, data, *args, **kwargs)
+            else:
+                for i, ax in enumerate(self):
+                    ax.plot(x[i], data[i], *args, **kwargs)
         return self
 
     def plot_z_1d(
@@ -118,7 +125,7 @@ class AxesList(_t.List[_T]):
         else:
             if len(data) == 1:
                 data = data[0]
-            for i, ax in enumerate(self):
+            for _, ax in enumerate(self):
                 ax.imshow(data=data, *args, **kwargs)
         return self
 
@@ -136,16 +143,27 @@ class AxesList(_t.List[_T]):
 
     def map(self, func: _t.Callable[[AAxes], _t.Any]):
         for ax in self:
-            func(ax)
+            if isinstance(ax, AxesList):
+                ax.map(func)
+            else:
+                func(ax)
         return self
 
     def suptitle(self, title):
         self.figure.suptitle(title)
         return self
 
-    def legend(self: _T, *args, **kwargs) -> _T:
+    def legend(self: _L, *args, **kwargs) -> _L:
         for ax in self:
             ax.legend(*args, **kwargs)
         return self
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}:{super().__repr__()}"
+
+    def __add__(self, other):  # type: ignore
+        if issubclass(type(other), list):
+            return self.__class__(super().__add__(other))
+        return self.__class__(super().__add__([other]))
 
     # TODO: if self[0] has a method, then call it on all axes

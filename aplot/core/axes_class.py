@@ -10,9 +10,14 @@ from matplotlib.image import AxesImage
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from .typing import NoneType, noneType
-from .utils import filter_none, filter_none_types, filter_set_kwargs, get_auto_args, imshow_kwds
+from .utils import (
+    filter_none,
+    filter_none_types,
+    filter_set_kwargs,
+    get_auto_args,
+    imshow_kwds,
+)
 
-# def ([\w]+)\([\w,:\[\]=\*#.|*"\n\t\s]+\) -> ["\w\[\],.]+: (\.\.\.)
 _T = _t.TypeVar("_T")
 if _t.TYPE_CHECKING:
     from .figure_class import AFigure
@@ -360,3 +365,10 @@ class AAxes(
         if ylims is not None:
             self.set_ylim(*ylims)
         return res
+
+    def __add__(self, other):
+        from .axes_list import AxesList
+
+        if isinstance(other, list):
+            return AxesList([self] + other)  # type: ignore
+        return AxesList([self, other])  # type: ignore

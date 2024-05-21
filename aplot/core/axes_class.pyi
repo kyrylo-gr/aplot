@@ -19,7 +19,12 @@ from matplotlib.collections import (
     QuadMesh,
 )
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.container import BarContainer, Container, ErrorbarContainer, StemContainer
+from matplotlib.container import (
+    BarContainer,
+    Container,
+    ErrorbarContainer,
+    StemContainer,
+)
 from matplotlib.contour import QuadContourSet
 from matplotlib.figure import Figure
 from matplotlib.image import AxesImage, PcolorImage
@@ -35,6 +40,7 @@ from matplotlib.ticker import Formatter
 from matplotlib.transforms import Bbox, BboxTransformTo, Transform
 from numpy.typing import ArrayLike
 
+from .axes_list import AxesList
 from .figure_class import AFigure
 
 # from matplotlib._typing import ArrayLike, Color, Scalar
@@ -816,3 +822,4 @@ class AAxes(MplAxes, Generic[_T]):
         w_pad: float = ...,
         rect: Sequence[float] = ...
     ) -> _S: ...
+    def __add__(self, other) -> "AxesList": ...
