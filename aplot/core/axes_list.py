@@ -149,7 +149,7 @@ class AxesList(_t.List[_T]):
                 func(ax)
         return self
 
-    def suptitle(self, title):
+    def suptitle(self, title: str):
         self.figure.suptitle(title)
         return self
 
@@ -165,5 +165,14 @@ class AxesList(_t.List[_T]):
         if issubclass(type(other), list):
             return self.__class__(super().__add__(other))
         return self.__class__(super().__add__([other]))
+
+    def __getattr__(self, key):
+        # print("getattr", key)
+        def mapping(*args, **kwargs):
+            for ax in self:
+                getattr(ax, key)(*args, **kwargs)
+
+        return mapping
+        # return super().__getattribute__(key)
 
     # TODO: if self[0] has a method, then call it on all axes

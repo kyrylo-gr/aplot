@@ -1,46 +1,30 @@
 # flake8: noqa: E302, E704
 import datetime
-from typing import Callable, Generic, Literal, Sequence, TypeVar, Union, overload
+from typing import Any, Callable, List, Literal, Sequence, TypeVar, Union, overload
 
 import numpy as np
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes as MplAxes
-from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.axis import XAxis, YAxis
 from matplotlib.backend_bases import MouseButton, RendererBase
 from matplotlib.backend_tools import Cursors
-from matplotlib.collections import (
-    BrokenBarHCollection,
-    Collection,
-    EventCollection,
-    LineCollection,
-    PathCollection,
-    PolyCollection,
-    QuadMesh,
-)
+from matplotlib.collections import Collection
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.container import (
-    BarContainer,
-    Container,
-    ErrorbarContainer,
-    StemContainer,
-)
-from matplotlib.contour import QuadContourSet
+from matplotlib.container import BarContainer, Container
 from matplotlib.figure import Figure
-from matplotlib.image import AxesImage, PcolorImage
+from matplotlib.image import AxesImage
 from matplotlib.lines import Line2D
 from matplotlib.markers import MarkerStyle
-from matplotlib.patches import FancyArrow, Patch, Polygon, Rectangle, StepPatch, Wedge
-from matplotlib.quiver import Barbs, Quiver
+from matplotlib.patches import Patch
+from matplotlib.quiver import Quiver
 from matplotlib.scale import ScaleBase
 from matplotlib.spines import Spines
 from matplotlib.table import Table
-from matplotlib.text import Annotation, Text
 from matplotlib.ticker import Formatter
 from matplotlib.transforms import Bbox, BboxTransformTo, Transform
 from numpy.typing import ArrayLike
 
-from .axes_list import AxesList
+from .axes_class import AAxes
 from .figure_class import AFigure
 
 # from matplotlib._typing import ArrayLike, Color, Scalar
@@ -51,7 +35,8 @@ _Axes = Union[MplAxes, "AAxes"]
 _T = TypeVar("_T")
 _S = TypeVar("_S")
 
-class AAxes(MplAxes, Generic[_T]):
+class AxesList(List[_T]):
+
     dataLim: Bbox
     viewLim: Bbox
     transAxes: BboxTransformTo
@@ -62,24 +47,31 @@ class AAxes(MplAxes, Generic[_T]):
     fmt_xdata: None | Formatter = ...
     fmt_ydata: None | Formatter = ...
     cursor_to_use: Cursors = ...
+
     figure: AFigure = ...  # type: ignore
     fig: AFigure = ...
+
     def set_title(  # type: ignore
-        self,
+        self: _S,
         label: str,
         fontdict: dict = ...,
         loc: Literal["center", "left", "right"] = ...,
         pad: float = ...,
         *,
         y: float = ...,
-        **kwargs
-    ) -> "AAxes": ...
-    def legend(self, *args, **kwargs) -> "AAxes": ...  # type: ignore
-    def inset_axes(
-        self, bounds: Sequence[float], *, transform: Transform = ..., zorder: float = ..., **kwargs
-    ) -> "AAxes": ...
+        **kwargs,
+    ) -> _S: ...
+    def legend(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def inset_axes(  # type: ignore
+        self: _S,
+        bounds: Sequence[float],
+        *,
+        transform: Transform = ...,
+        zorder: float = ...,
+        **kwargs,
+    ) -> _S: ...
     def indicate_inset(  # type: ignore
-        self,
+        self: _S,
         bounds: Sequence[float],
         inset_ax: _Axes = ...,
         *,
@@ -88,26 +80,26 @@ class AAxes(MplAxes, Generic[_T]):
         edgecolor: Color = ...,
         alpha: float = ...,
         zorder: float = ...,
-        **kwargs
-    ) -> "AAxes": ...
-    def indicate_inset_zoom(self, inset_ax: _Axes, **kwargs) -> "AAxes[Rectangle]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def indicate_inset_zoom(self: _S, inset_ax: _Axes, **kwargs) -> _S: ...  # type: ignore
     def secondary_xaxis(  # type: ignore
-        self,
+        self: _S,
         location: Literal["top", "bottom", "left", "right"] | float,
         *,
         functions=...,
-        **kwargs
-    ) -> "AAxes[SecondaryAxis]": ...
+        **kwargs,
+    ) -> _S: ...
     def secondary_yaxis(  # type: ignore
-        self,
+        self: _S,
         location: Literal["top", "bottom", "left", "right"] | float,
         *,
         functions=...,
-        **kwargs
-    ) -> "AAxes[SecondaryAxis]": ...
-    def text(self, x: float, y: float, s: str, fontdict: dict = ..., **kwargs) -> "AAxes[Text]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def text(self: _S, x: float, y: float, s: str, fontdict: dict = ..., **kwargs) -> _S: ...  # type: ignore
     def annotate(  # type: ignore
-        self,
+        self: _S,
         text: str,
         xy: Sequence[float],
         xytext: Sequence[float] = ...,
@@ -115,50 +107,50 @@ class AAxes(MplAxes, Generic[_T]):
         textcoords: str | Artist | Transform | Callable = ...,
         arrowprops: dict = ...,
         annotation_clip: bool | None = ...,
-        **kwargs
-    ) -> "AAxes[Annotation]": ...
+        **kwargs,
+    ) -> _S: ...
     def axhline(  # type: ignore
-        self, y: float = 0, xmin: float = 0, xmax: float = 1, **kwargs
-    ) -> "AAxes[Line2D]": ...
+        self: _S, y: float = 0, xmin: float = 0, xmax: float = 1, **kwargs
+    ) -> _S: ...
     def axvline(  # type: ignore
-        self, x: float = ..., ymin: float = ..., ymax: float = ..., **kwargs
-    ) -> "AAxes[Line2D]": ...
+        self: _S, x: float = ..., ymin: float = ..., ymax: float = ..., **kwargs
+    ) -> _S: ...
     def axline(  # type: ignore
-        self,
+        self: _S,
         xy1: tuple[float, float],
         xy2: tuple[float, float] = ...,
         *,
         slope: float = ...,
-        **kwargs
-    ) -> "AAxes[Line2D]": ...
+        **kwargs,
+    ) -> _S: ...
     def axhspan(  # type: ignore
-        self, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
-    ) -> "AAxes[Polygon]": ...
+        self: _S, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
+    ) -> _S: ...
     def axvspan(  # type: ignore
-        self, xmin: float, xmax: float, ymin: float = 0, ymax: float = 1, **kwargs
-    ) -> "AAxes[Polygon]": ...
+        self: _S, xmin: float, xmax: float, ymin: float = 0, ymax: float = 1, **kwargs
+    ) -> _S: ...
     def hlines(  # type: ignore
-        self,
+        self: _S,
         y: float | ArrayLike,
         xmin: float | ArrayLike,
         xmax: float | ArrayLike,
         colors: list[Color] = ...,
         linestyles: Literal["solid", "dashed", "dashdot", "dotted"] = ...,
         label: str = ...,
-        **kwargs
-    ) -> "AAxes[LineCollection]": ...
+        **kwargs,
+    ) -> _S: ...
     def vlines(  # type: ignore
-        self,
+        self: _S,
         x: float | ArrayLike,
         ymin: float | ArrayLike,
         ymax: float | ArrayLike,
         colors: list[Color] = ...,
         linestyles: Literal["solid", "dashed", "dashdot", "dotted"] = ...,
         label: str = ...,
-        **kwargs
-    ) -> "AAxes[LineCollection]": ...
+        **kwargs,
+    ) -> _S: ...
     def eventplot(  # type: ignore
-        self,
+        self: _S,
         positions: ArrayLike | list[ArrayLike],
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         lineoffsets: float | ArrayLike = 1,
@@ -166,77 +158,77 @@ class AAxes(MplAxes, Generic[_T]):
         linewidths: float | ArrayLike = ...,
         colors: Color | list[Color] = ...,
         linestyles: str | tuple | list = ...,
-        **kwargs
-    ) -> "AAxes[list[EventCollection]]": ...
-    def plot(self, *args, scalex=..., scaley=..., data=..., **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def plot(self: _S, *args, scalex=..., scaley=..., data=..., **kwargs) -> _S: ...  # type: ignore
     def plot_date(  # type: ignore
-        self,
+        self: _S,
         x: ArrayLike,
         y: ArrayLike,
         fmt: str = ...,
         tz: datetime.tzinfo = ...,
         xdate: bool = ...,
         ydate: bool = ...,
-        **kwargs
-    ) -> "AAxes[list[Line2D]]": ...
-    def loglog(self, *args, **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
-    def semilogx(self, *args, **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
-    def semilogy(self, *args, **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
-    def acorr(self, x: ArrayLike, **kwargs) -> "AAxes[None]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def loglog(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def semilogx(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def semilogy(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def acorr(self: _S, x: ArrayLike, **kwargs) -> _S: ...  # type: ignore
     def xcorr(  # type: ignore
-        self,
+        self: _S,
         x,
         y,
         normed: bool = True,
         detrend: Callable = ...,
         usevlines: bool = True,
         maxlags: int = 10,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, bool, int]]": ...
+        **kwargs,
+    ) -> _S: ...
     def step(  # type: ignore
-        self,
+        self: _S,
         x: ArrayLike,
         y: ArrayLike,
         *args,
         where: Literal["pre", "post", "mid"] = ...,
         data=...,
-        **kwargs
-    ) -> "AAxes[list[Line2D]]": ...
+        **kwargs,
+    ) -> _S: ...
     def bar(  # type: ignore
-        self,
+        self: _S,
         x: float | ArrayLike,
         height: float | ArrayLike,
         width: float | ArrayLike = ...,
         bottom: float | ArrayLike = ...,
         *,
         align: Literal["center", "edge"] = "center",
-        **kwargs
-    ) -> "AAxes[BarContainer]": ...
+        **kwargs,
+    ) -> _S: ...
     def barh(  # type: ignore
-        self,
+        self: _S,
         y: float | ArrayLike,
         width: float | ArrayLike,
         height: float | ArrayLike = ...,
         left: float | ArrayLike = ...,
         *,
         align: Literal["center", "edge"] = "center",
-        **kwargs
-    ) -> "AAxes[BarContainer]": ...
+        **kwargs,
+    ) -> _S: ...
     def bar_label(  # type: ignore
-        self,
+        self: _S,
         container: BarContainer,
         labels: ArrayLike = ...,
         *,
         fmt: str = "%g",
         label_type: Literal["edge", "center"] = "edge",
         padding: float = 0,
-        **kwargs
-    ) -> "AAxes[list[Text]]": ...
+        **kwargs,
+    ) -> _S: ...
     def broken_barh(  # type: ignore
-        self, xranges: Sequence[tuple[float, float]], yrange: tuple[float, float], **kwargs
-    ) -> "AAxes[BrokenBarHCollection]": ...
+        self: _S, xranges: Sequence[tuple[float, float]], yrange: tuple[float, float], **kwargs
+    ) -> _S: ...
     def stem(  # type: ignore
-        self,
+        self: _S,
         *args,
         linefmt: str = ...,
         markerfmt: str = ...,
@@ -244,10 +236,10 @@ class AAxes(MplAxes, Generic[_T]):
         bottom: float = 0,
         label: str | None = None,
         use_line_collection: bool = True,
-        orientation: str = "verical"
-    ) -> "AAxes[StemContainer]": ...
+        orientation: str = "verical",
+    ) -> _S: ...
     def pie(  # type: ignore
-        self,
+        self: _S,
         x,
         explode: ArrayLike | None = None,
         labels: list | None = None,
@@ -265,10 +257,10 @@ class AAxes(MplAxes, Generic[_T]):
         frame: bool = False,
         rotatelabels: bool = False,
         *,
-        normalize: bool = True
-    ) -> "AAxes[tuple[list[Wedge], list[Text], list[Text]]]": ...
+        normalize: bool = True,
+    ) -> _S: ...
     def errorbar(  # type: ignore
-        self,
+        self: _S,
         x: float | ArrayLike,
         y: float | ArrayLike,
         yerr: float | ArrayLike = ...,
@@ -284,10 +276,10 @@ class AAxes(MplAxes, Generic[_T]):
         xuplims: bool = False,
         errorevery: int = 1,
         capthick: float | None = None,
-        **kwargs
-    ) -> "AAxes[ErrorbarContainer]": ...
+        **kwargs,
+    ) -> _S: ...
     def boxplot(  # type: ignore
-        self,
+        self: _S,
         x: ArrayLike,
         notch: bool = False,
         sym: str = ...,
@@ -315,9 +307,9 @@ class AAxes(MplAxes, Generic[_T]):
         autorange: bool = False,
         zorder: float = 2,
         capwidths=...,
-    ) -> "AAxes[dict[str, list[Line2D]]]": ...
+    ) -> _S: ...
     def bxp(  # type: ignore
-        self,
+        self: _S,
         bxpstats: list[dict],
         positions: ArrayLike = ...,
         widths: float | ArrayLike | None = None,
@@ -338,9 +330,9 @@ class AAxes(MplAxes, Generic[_T]):
         manage_ticks: bool = True,
         zorder: float = 2,
         capwidths: float | ArrayLike | None = None,
-    ) -> "AAxes[dict[str, list[Line2D]]]": ...
+    ) -> _S: ...
     def scatter(  # type: ignore
-        self,
+        self: _S,
         x: float | ArrayLike,
         y: float | ArrayLike,
         s: float | ArrayLike = ...,
@@ -355,10 +347,10 @@ class AAxes(MplAxes, Generic[_T]):
         *,
         edgecolors: Color = ...,
         plotnonfinite: bool = False,
-        **kwargs
-    ) -> "AAxes[PathCollection]": ...
+        **kwargs,
+    ) -> _S: ...
     def hexbin(  # type: ignore
-        self,
+        self: _S,
         x: ArrayLike,
         y: ArrayLike,
         C: ArrayLike = ...,
@@ -377,37 +369,37 @@ class AAxes(MplAxes, Generic[_T]):
         reduce_C_function=...,
         mincnt: int | None = None,
         marginals: bool = False,
-        **kwargs
-    ) -> "AAxes[PolyCollection]": ...
-    def arrow(self, x: float, y: float, dx: float, dy: float, **kwargs) -> "AAxes[FancyArrow]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def arrow(self: _S, x: float, y: float, dx: float, dy: float, **kwargs) -> _S: ...  # type: ignore
     def quiverkey(  # type: ignore
-        self, Q: Quiver, X: float, Y: float, U: float, label: str, **kwargs
-    ) -> "AAxes[None]": ...
-    def quiver(self, *args, **kwargs) -> "AAxes[Quiver]": ...  # type: ignore
-    def barbs(self, *args, **kwargs) -> "AAxes[Barbs]": ...  # type: ignore
-    def fill(self, *args, data=..., **kwargs) -> "AAxes[list[Polygon]]": ...  # type: ignore
+        self: _S, Q: Quiver, X: float, Y: float, U: float, label: str, **kwargs
+    ) -> _S: ...
+    def quiver(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def barbs(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def fill(self: _S, *args, data=..., **kwargs) -> _S: ...  # type: ignore
     def fill_between(  # type: ignore
-        self,
+        self: _S,
         x,
         y1: Scalar,
         y2: Scalar = ...,
         where: ArrayLike = ...,
         interpolate: bool = ...,
         step: Literal["pre", "post", "mid"] = ...,
-        **kwargs
-    ) -> "AAxes[PolyCollection]": ...
+        **kwargs,
+    ) -> _S: ...
     def fill_betweenx(  # type: ignore
-        self,
+        self: _S,
         y,
         x1: Scalar,
         x2: Scalar = ...,
         where: ArrayLike = ...,
         step: Literal["pre", "post", "mid"] = ...,
         interpolate: bool = ...,
-        **kwargs
-    ) -> "AAxes[PolyCollection]": ...
+        **kwargs,
+    ) -> _S: ...
     def imshow(  # type: ignore
-        self,
+        self: _S,
         X: ArrayLike,
         cmap: str | Colormap = ...,
         norm: Normalize = ...,
@@ -424,10 +416,10 @@ class AAxes(MplAxes, Generic[_T]):
         filterrad: float = 4,
         resample: bool = ...,
         url: str = ...,
-        **kwargs
-    ) -> "AAxes[AxesImage]": ...
+        **kwargs,
+    ) -> _S: ...
     def pcolor(  # type: ignore
-        self,
+        self: _S,
         *args,
         shading: Literal["flat", "nearest", "auto"] = ...,
         alpha: float | None = None,
@@ -435,10 +427,10 @@ class AAxes(MplAxes, Generic[_T]):
         cmap: str | Colormap = ...,
         vmin: float | None = None,
         vmax: float | None = None,
-        **kwargs
-    ) -> "AAxes[Collection]": ...
+        **kwargs,
+    ) -> _S: ...
     def pcolormesh(  # type: ignore
-        self,
+        self: _S,
         *args,
         alpha: float | None = None,
         norm: Normalize = ...,
@@ -447,24 +439,24 @@ class AAxes(MplAxes, Generic[_T]):
         vmax: float | None = None,
         shading: Literal["flat", "nearest", "gouraud", "auto"] = ...,
         antialiased=...,
-        **kwargs
-    ) -> "AAxes[QuadMesh]": ...
+        **kwargs,
+    ) -> _S: ...
     def pcolorfast(  # type: ignore
-        self,
+        self: _S,
         *args,
         alpha: float | None = None,
         norm: Normalize = ...,
         cmap: str | Colormap = ...,
         vmin: float | None = None,
         vmax: float | None = None,
-        **kwargs
-    ) -> "AAxes[tuple[AxesImage, PcolorImage, QuadMesh]]": ...
-    def contour(self, *args, **kwargs) -> "AAxes[QuadContourSet]": ...  # type: ignore
-    def contourf(self, *args, **kwargs) -> "AAxes[QuadContourSet]": ...  # type: ignore
-    def clabel(self, CS, levels: ArrayLike = ..., **kwargs) -> "AAxes[None]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def contour(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def contourf(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
+    def clabel(self: _S, CS, levels: ArrayLike = ..., **kwargs) -> _S: ...  # type: ignore
     @overload
     def hist(
-        self,
+        self: _S,
         x: Sequence[ArrayLike],
         bins: int | ArrayLike | str = ...,
         range: tuple | None = ...,
@@ -480,11 +472,11 @@ class AAxes(MplAxes, Generic[_T]):
         color: Color | None = ...,
         label: str | None = ...,
         stacked: bool = ...,
-        **kwargs
-    ) -> "AAxes[tuple[list[list[float]], list[float], BarContainer | list]]": ...
+        **kwargs,
+    ) -> _S: ...
     @overload
     def hist(  # type: ignore
-        self,
+        self: _S,
         x: ArrayLike,
         bins: int | ArrayLike | str = ...,
         range: tuple[float, float] | None = None,
@@ -500,20 +492,20 @@ class AAxes(MplAxes, Generic[_T]):
         color: Color | None = None,
         label: str | None = None,
         stacked: bool = False,
-        **kwargs
-    ) -> "AAxes[tuple[list[float], list[float], BarContainer | list]]": ...
+        **kwargs,
+    ) -> _S: ...
     def stairs(  # type: ignore
-        self,
+        self: _S,
         values: ArrayLike,
         edges: ArrayLike = ...,
         *,
         orientation: Literal["vertical", "horizontal"] = "vertical",
         baseline: float | ArrayLike | None = 0,
         fill: bool = False,
-        **kwargs
-    ) -> "AAxes[StepPatch]": ...
+        **kwargs,
+    ) -> _S: ...
     def hist2d(  # type: ignore
-        self,
+        self: _S,
         x,
         y,
         bins: None | int | ArrayLike = ...,
@@ -522,10 +514,10 @@ class AAxes(MplAxes, Generic[_T]):
         weights=...,
         cmin: float | None = None,
         cmax: float | None = None,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, tuple[float, float] | None]]": ...
+        **kwargs,
+    ) -> _S: ...
     def psd(  # type: ignore
-        self,
+        self: _S,
         x: Sequence,
         NFFT: int = ...,
         Fs: float = ...,
@@ -537,10 +529,10 @@ class AAxes(MplAxes, Generic[_T]):
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale_by_freq: bool = ...,
         return_line: bool = False,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
+        **kwargs,
+    ) -> _S: ...
     def csd(  # type: ignore
-        self,
+        self: _S,
         x: ArrayLike,
         y: ArrayLike,
         NFFT: int = ...,
@@ -553,10 +545,10 @@ class AAxes(MplAxes, Generic[_T]):
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale_by_freq: bool = ...,
         return_line: bool = False,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
+        **kwargs,
+    ) -> _S: ...
     def magnitude_spectrum(  # type: ignore
-        self,
+        self: _S,
         x: Sequence,
         Fs: float = ...,
         Fc: int = ...,
@@ -564,30 +556,30 @@ class AAxes(MplAxes, Generic[_T]):
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale: Literal["default", "linear", "dB"] = "linear",
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
+        **kwargs,
+    ) -> _S: ...
     def angle_spectrum(  # type: ignore
-        self,
+        self: _S,
         x: Sequence,
         Fs: float = ...,
         Fc: int = 0,
         window: Callable | np.ndarray = ...,
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
+        **kwargs,
+    ) -> _S: ...
     def phase_spectrum(  # type: ignore
-        self,
+        self: _S,
         x: Sequence,
         Fs: float = ...,
         Fc: int = 0,
         window: Callable | np.ndarray = ...,
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
+        **kwargs,
+    ) -> _S: ...
     def cohere(  # type: ignore
-        self,
+        self: _S,
         x,
         y,
         NFFT: int = ...,
@@ -599,10 +591,10 @@ class AAxes(MplAxes, Generic[_T]):
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale_by_freq: bool = ...,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray]]": ...
+        **kwargs,
+    ) -> _S: ...
     def specgram(  # type: ignore
-        self,
+        self: _S,
         x: Sequence,
         NFFT: int = ...,
         Fs: float = ...,
@@ -619,21 +611,21 @@ class AAxes(MplAxes, Generic[_T]):
         scale: Literal["default", "linear", "dB"] = "dB",
         vmin=...,
         vmax=...,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, AxesImage]]": ...
+        **kwargs,
+    ) -> _S: ...
     def spy(  # type: ignore
-        self,
+        self: _S,
         Z,
         precision: float | Literal["present"] = 0,
         marker=...,
         markersize=...,
         aspect: Literal["equal", "auto", None] | float = "equal",
         origin: Literal["upper", "lower"] = ...,
-        **kwargs
-    ) -> "AAxes[AxesImage | Line2D]": ...  # type: ignore
-    def matshow(self, Z: ArrayLike, **kwargs) -> "AAxes[AxesImage]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...  # type: ignore
+    def matshow(self: _S, Z: ArrayLike, **kwargs) -> _S: ...  # type: ignore
     def violinplot(  # type: ignore
-        self,
+        self: _S,
         dataset: ArrayLike,
         positions: ArrayLike = ...,
         vert: bool = True,
@@ -644,9 +636,9 @@ class AAxes(MplAxes, Generic[_T]):
         quantiles: ArrayLike | None = None,
         points: int = 100,
         bw_method: str | Scalar | Callable | None = None,
-    ) -> "AAxes[dict[str, Collection]]": ...
+    ) -> _S: ...
     def violin(  # type: ignore
-        self,
+        self: _S,
         vpstats: list[dict],
         positions: ArrayLike = ...,
         vert: bool = True,
@@ -654,170 +646,188 @@ class AAxes(MplAxes, Generic[_T]):
         showmeans: bool = False,
         showextrema: bool = True,
         showmedians: bool = False,
-    ) -> "AAxes[dict[str, Collection]]": ...
-    def set_figure(self, fig: Figure) -> "AAxes[None]": ...  # type: ignore
+    ) -> _S: ...
+    def set_figure(self: _S, fig: Figure) -> _S: ...  # type: ignore
     def set_position(  # type: ignore
-        self,
+        self: _S,
         pos: Sequence[float] | Bbox,
         which: Literal["both", "active", "original"] = ...,
-    ) -> "AAxes[None]": ...
-    def reset_position(self) -> "AAxes[None]": ...  # type: ignore
-    def set_axes_locator(self, locator: Callable[[_Axes, RendererBase], Bbox]) -> "AAxes[None]": ...  # type: ignore
-    def sharex(self, other: _Axes) -> "AAxes[None]": ...  # type: ignore
-    def sharey(self, other: _Axes) -> "AAxes[None]": ...  # type: ignore
-    def clear(self) -> "AAxes[None]": ...  # type: ignore
-    def cla(self) -> "AAxes[None]": ...  # type: ignore
-    def set_facecolor(self, color: Color) -> "AAxes[None]": ...  # type: ignore
-    def set_prop_cycle(self, *args, **kwargs) -> "AAxes[None]": ...  # type: ignore
+    ) -> _S: ...
+    def reset_position(self: _S) -> _S: ...  # type: ignore
+    def set_axes_locator(self: _S, locator: Callable[[_Axes, RendererBase], Bbox]) -> _S: ...  # type: ignore
+    def sharex(self: _S, other: _Axes) -> _S: ...  # type: ignore
+    def sharey(self: _S, other: _Axes) -> _S: ...  # type: ignore
+    def clear(self: _S) -> _S: ...  # type: ignore
+    def cla(self: _S) -> _S: ...  # type: ignore
+    def set_facecolor(self: _S, color: Color) -> _S: ...  # type: ignore
+    def set_prop_cycle(self: _S, *args, **kwargs) -> _S: ...  # type: ignore
     def set_aspect(  # type: ignore
-        self,
+        self: _S,
         aspect: Literal["auto", "equal"] | float,
         adjustable: None | Literal["box", "datalim"] = ...,
         anchor: None | str | Sequence[float] = ...,
         share: bool = False,
-    ) -> "AAxes[None]": ...
+    ) -> _S: ...
     def set_adjustable(  # type: ignore
-        self, adjustable: Literal["box", "datalim"], share: bool = False
-    ) -> "AAxes[None]": ...
-    def set_box_aspect(self, aspect: float | None = ...) -> "AAxes[None]": ...  # type: ignore
+        self: _S, adjustable: Literal["box", "datalim"], share: bool = False
+    ) -> _S: ...
+    def set_box_aspect(self: _S, aspect: float | None = ...) -> _S: ...  # type: ignore
     def set_anchor(  # type: ignore
-        self,
+        self: _S,
         anchor: Literal["C", "SW", "S", "SE", "E", "NE", "N", "NW", "W"],
         share: bool = False,
-    ) -> "AAxes[None]": ...
-    def apply_aspect(self, position=...) -> "AAxes[None]": ...  # type: ignore
-    def add_artist(self, a: Artist) -> "AAxes[Artist]": ...  # type: ignore
-    def add_child_axes(self, ax: _Axes) -> "AAxes[AAxes]": ...  # type: ignore
-    def add_collection(self, collection: Collection, autolim=...) -> "AAxes[Collection]": ...  # type: ignore
-    def add_image(self, image: AxesImage) -> "AAxes[AxesImage]": ...  # type: ignore
-    def add_line(self, line: Line2D) -> "AAxes[Line2D]": ...  # type: ignore
-    def add_patch(self, p: Patch) -> "AAxes[Patch]": ...  # type: ignore
-    def add_table(self, tab: Table) -> "AAxes[Table]": ...  # type: ignore
-    def add_container(self, container: Container) -> "AAxes[Container]": ...  # type: ignore
-    def relim(self, visible_only: bool = ...) -> "AAxes[None]": ...  # type: ignore
-    def update_datalim(self, xys, updatex: bool = ..., updatey: bool = ...) -> "AAxes[None]": ...  # type: ignore
-    def set_autoscale_on(self, b: bool) -> "AAxes[None]": ...  # type: ignore
-    def set_xmargin(self, m: float) -> "AAxes[None]": ...  # type: ignore
-    def set_ymargin(self, m: float) -> "AAxes[None]": ...  # type: ignore
-    def set_rasterization_zorder(self, z: float | None) -> "AAxes[None]": ...  # type: ignore
+    ) -> _S: ...
+    def apply_aspect(self: _S, position=...) -> _S: ...  # type: ignore
+    def add_artist(self: _S, a: Artist) -> _S: ...  # type: ignore
+    def add_child_axes(self: _S, ax: _Axes) -> _S: ...  # type: ignore
+    def add_collection(self: _S, collection: Collection, autolim=...) -> _S: ...  # type: ignore
+    def add_image(self: _S, image: AxesImage) -> _S: ...  # type: ignore
+    def add_line(self: _S, line: Line2D) -> _S: ...  # type: ignore
+    def add_patch(self: _S, p: Patch) -> _S: ...  # type: ignore
+    def add_table(self: _S, tab: Table) -> _S: ...  # type: ignore
+    def add_container(self: _S, container: Container) -> _S: ...  # type: ignore
+    def relim(self: _S, visible_only: bool = ...) -> _S: ...  # type: ignore
+    def update_datalim(self: _S, xys, updatex: bool = ..., updatey: bool = ...) -> _S: ...  # type: ignore
+    def set_autoscale_on(self: _S, b: bool) -> _S: ...  # type: ignore
+    def set_xmargin(self: _S, m: float) -> _S: ...  # type: ignore
+    def set_ymargin(self: _S, m: float) -> _S: ...  # type: ignore
+    def set_rasterization_zorder(self: _S, z: float | None) -> _S: ...  # type: ignore
     def autoscale(  # type: ignore
-        self,
+        self: _S,
         enable: bool | None = ...,
         axis: Literal["both", "x", "y"] = ...,
         tight: bool | None = ...,
-    ) -> "AAxes[None]": ...
+    ) -> _S: ...
     def autoscale_view(  # type: ignore
-        self, tight: bool | None = ..., scalex: bool = True, scaley: bool = True
-    ) -> "AAxes[None]": ...
-    def draw(self, renderer) -> "AAxes[None]": ...  # type: ignore
-    def draw_artist(self, a: Artist) -> "AAxes[None]": ...  # type: ignore
-    def redraw_in_frame(self) -> "AAxes[None]": ...  # type: ignore
-    def set_frame_on(self, b: bool) -> "AAxes[None]": ...  # type: ignore
-    def set_axisbelow(self, b: bool | Literal["line"]) -> "AAxes[None]": ...  # type: ignore
+        self: _S, tight: bool | None = ..., scalex: bool = True, scaley: bool = True
+    ) -> _S: ...
+    def draw(self: _S, renderer) -> _S: ...  # type: ignore
+    def draw_artist(self: _S, a: Artist) -> _S: ...  # type: ignore
+    def redraw_in_frame(self: _S) -> _S: ...  # type: ignore
+    def set_frame_on(self: _S, b: bool) -> _S: ...  # type: ignore
+    def set_axisbelow(self: _S, b: bool | Literal["line"]) -> _S: ...  # type: ignore
     def grid(  # type: ignore
-        self,
+        self: _S,
         visible: bool | None = ...,
         which: Literal["major", "minor", "both"] = ...,
         axis: Literal["both", "x", "y"] = ...,
-        **kwargs
-    ) -> "AAxes[None]": ...
+        **kwargs,
+    ) -> _S: ...
     def ticklabel_format(  # type: ignore
-        self,
+        self: _S,
         *,
         axis: Literal["x", "y", "both"] = ...,
         style: Literal["sci", "scientific", "plain"] = ...,
         scilimits=...,
         useOffset: bool | float = ...,
         useLocale: bool = ...,
-        useMathText: bool = ...
-    ) -> "AAxes[None]": ...
+        useMathText: bool = ...,
+    ) -> _S: ...
     def locator_params(  # type: ignore
-        self, axis: Literal["both", "x", "y"] = ..., tight: bool | None = ..., **kwargs
-    ) -> "AAxes[None]": ...
-    def tick_params(self, axis: Literal["x", "y", "both"] = ..., **kwargs) -> "AAxes[None]": ...  # type: ignore
-    def set_axis_off(self) -> "AAxes[None]": ...  # type: ignore
-    def set_axis_on(self) -> "AAxes[None]": ...  # type: ignore
+        self: _S, axis: Literal["both", "x", "y"] = ..., tight: bool | None = ..., **kwargs
+    ) -> _S: ...
+    def tick_params(self: _S, axis: Literal["x", "y", "both"] = ..., **kwargs) -> _S: ...  # type: ignore
+    def set_axis_off(self: _S) -> _S: ...  # type: ignore
+    def set_axis_on(self: _S) -> _S: ...  # type: ignore
     def set_xlabel(  # type: ignore
-        self,
+        self: _S,
         xlabel: str,
         fontdict=...,
         labelpad: float = ...,
         *,
         loc: Literal["left", "center", "right"] = ...,
-        **kwargs
-    ) -> "AAxes[None]": ...
-    def invert_xaxis(self) -> "AAxes[None]": ...  # type: ignore
-    def set_xbound(self, lower: float | None = ..., upper: float | None = ...) -> "AAxes[None]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def invert_xaxis(self: _S) -> _S: ...  # type: ignore
+    def set_xbound(self: _S, lower: float | None = ..., upper: float | None = ...) -> _S: ...  # type: ignore
     @overload
     def set_xlim(  # type: ignore
-        self,
+        self: _S,
         left: tuple[float | np.datetime64, float | np.datetime64],
         *,
         emit: bool = ...,
         auto: bool | None = ...,
         xmin: float = ...,
-        xmax: float = ...
-    ) -> "AAxes[tuple[float, float]]": ...
+        xmax: float = ...,
+    ) -> _S: ...
     @overload
     def set_xlim(  # type: ignore
-        self,
+        self: _S,
         left: float | np.datetime64 = ...,
         right: float | np.datetime64 = ...,
         emit: bool = ...,
         auto: bool | None = ...,
         *,
         xmin: float = ...,
-        xmax: float = ...
-    ) -> "AAxes[tuple[float, float]]": ...
-    def set_xscale(self, value: ..., **kwargs) -> "AAxes[None]": ...  # type: ignore
+        xmax: float = ...,
+    ) -> _S: ...
+    def set_xscale(self: _S, value: ..., **kwargs) -> _S: ...  # type: ignore
     def set_ylabel(  # type: ignore
-        self,
+        self: _S,
         ylabel: str,
         fontdict=...,
         labelpad: float = ...,
         *,
         loc: Literal["bottom", "center", "top"] = ...,
-        **kwargs
-    ) -> "AAxes[None]": ...
-    def invert_yaxis(self) -> "AAxes[None]": ...  # type: ignore
-    def set_ybound(self, lower: float | None = ..., upper: float | None = ...) -> "AAxes[None]": ...  # type: ignore
+        **kwargs,
+    ) -> _S: ...
+    def invert_yaxis(self: _S) -> _S: ...  # type: ignore
+    def set_ybound(self: _S, lower: float | None = ..., upper: float | None = ...) -> _S: ...  # type: ignore
     def set_ylim(  # type: ignore
-        self,
+        self: _S,
         bottom: float = ...,
         top: float = ...,
         emit: bool = ...,
         auto: bool | None = ...,
         *,
         ymin: float = ...,
-        ymax: float = ...
-    ) -> "AAxes[None]": ...
+        ymax: float = ...,
+    ) -> _S: ...
     def set_yscale(  # type: ignore
-        self, value: Literal["linear", "log", "symlog", "logit"] | ScaleBase, **kwargs
-    ) -> "AAxes[None]": ...
-    def minorticks_on(self) -> "AAxes[None]": ...  # type: ignore
-    def minorticks_off(self) -> "AAxes[None]": ...  # type: ignore
-    def set_navigate(self, b: bool) -> "AAxes[None]": ...  # type: ignore
-    def set_navigate_mode(self, b: str | None) -> "AAxes[None]": ...  # type: ignore
-    def start_pan(self, x: float, y: float, button: MouseButton) -> "AAxes[None]": ...  # type: ignore
-    def end_pan(self) -> "AAxes[None]": ...  # type: ignore
+        self: _S, value: Literal["linear", "log", "symlog", "logit"] | ScaleBase, **kwargs
+    ) -> _S: ...
+    def minorticks_on(self: _S) -> _S: ...  # type: ignore
+    def minorticks_off(self: _S) -> _S: ...  # type: ignore
+    def set_navigate(self: _S, b: bool) -> _S: ...  # type: ignore
+    def set_navigate_mode(self: _S, b: str | None) -> _S: ...  # type: ignore
+    def start_pan(self: _S, x: float, y: float, button: MouseButton) -> _S: ...  # type: ignore
+    def end_pan(self: _S) -> _S: ...  # type: ignore
     def drag_pan(  # type: ignore
-        self, button: MouseButton, key: str | None, x: float, y: float
-    ) -> "AAxes[None]": ...
-    def twinx(self) -> "AAxes[AAxes]": ...
-    def twiny(self) -> "AAxes[AAxes]": ...
+        self: _S, button: MouseButton, key: str | None, x: float, y: float
+    ) -> _S: ...
+    def twinx(self: _S) -> _S: ...  # type: ignore
+    def twiny(self: _S) -> _S: ...  # type: ignore
     def set(self: _S, **kwargs) -> _S: ...  # type: ignore
     def fit(self: _S, func: str | Callable, *args, **kwargs) -> _S: ...
     last_result: _T = ...
     fit_result = ...
     res: _T = ...
-    def z_parametric(self, z: ArrayLike, **kwargs) -> "AAxes[Line2D]": ...
-    def autoaxis(self, level: int = 0, func_name: str = ...) -> "AAxes": ...
+    def z_parametric(self: _S, z: ArrayLike, **kwargs) -> _S: ...
     def tight_layout(
         self: _S,
         *,
         pad: float = ...,
         h_pad: float = ...,
         w_pad: float = ...,
-        rect: Sequence[float] = ...
+        rect: Sequence[float] = ...,
     ) -> _S: ...
-    def __add__(self, other) -> "AxesList": ...
+    def __add__(self: _S, other) -> _S: ...  # type: ignore
+    def plot_z_1d(
+        self: _S,
+        x: ArrayLike,
+        z: ArrayLike,
+        plot_format: Literal["bode", "real_imag"] = "bode",
+        unwrap: bool = False,
+        **kwargs,
+    ) -> _S: ...
+    def plot_z_2d(
+        self: _S,
+        x: ArrayLike,
+        y: ArrayLike,
+        z: ArrayLike,
+        plot_format: Literal["bode", "real_imag"] = "bode",
+        unwrap: bool = True,
+        **kwargs,
+    ) -> _S: ...
+    def map(self: _S, func: Callable[[AAxes], Any]) -> _S: ...
+    def suptitle(self: _S, title: str) -> _S: ...
