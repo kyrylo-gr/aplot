@@ -115,3 +115,11 @@ def gcf():
         return manager.canvas.figure  # type: ignore
     else:
         return figure()
+
+
+def show():
+    """Display all open figures.
+
+    Same as plt.show().
+    """
+    plt.show()
