@@ -117,9 +117,14 @@ def gcf():
         return figure()
 
 
-def show():
+def show(*args, **kwargs):
     """Display all open figures.
 
     Same as plt.show().
     """
-    plt.show()
+    plt.show(*args, **kwargs)
+
+
+def close():
+    """Close all open figures."""
+    plt.close("all")
