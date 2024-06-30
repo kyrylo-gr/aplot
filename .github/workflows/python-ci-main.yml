@@ -82,10 +82,9 @@ jobs:
         id: get_main_version
         run: |
           git fetch origin
-          git checkout origin/main -- ${{env.package-name}}/__config__.py
           echo "Config file:"
-          git show origin/main: ${{env.package-name}}/__config__.py
-          main_version=$(grep '__version__' __config__.py | cut -d'"' -f2)
+          git show origin/main:${{env.package-name}}/__config__.py
+          main_version=$(git show origin/main:${{env.package-name}}/__config__.py | grep '__version__' | cut -d'"' -f2)
           echo "Main branch version: $main_version"
           echo "main_version=$main_version" >> "$GITHUB_OUTPUT"
 
