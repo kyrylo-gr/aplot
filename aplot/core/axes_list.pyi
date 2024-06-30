@@ -25,7 +25,7 @@ from matplotlib.figure import Figure
 from matplotlib.image import AxesImage
 from matplotlib.lines import Line2D
 from matplotlib.markers import MarkerStyle
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.quiver import Quiver
 from matplotlib.scale import ScaleBase
 from matplotlib.spines import Spines

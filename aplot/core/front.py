@@ -73,7 +73,7 @@ def subplots(
 
 
 def axs(
-    nrows: int | AAxes | _t.List[AAxes] | _t.List[int] | "AxesList" = 1,
+    nrows: _t.Union[int, AAxes, _t.List[AAxes], _t.List[int], "AxesList"] = 1,
     ncols: int = 1,
     /,
     **kwargs,

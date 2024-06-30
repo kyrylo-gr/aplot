@@ -31,7 +31,7 @@ def filter_none_types(kwargs: dict) -> dict:
     return {k: v for k, v in kwargs.items() if not isinstance(v, NoneType)}
 
 
-def filter_none(data: dict | None = None, **kwargs) -> dict:
+def filter_none(data: _t.Optional[dict] = None, **kwargs) -> dict:
     if data is not None:
         kwargs.update(data)
     return {k: v for k, v in kwargs.items() if v is not None}

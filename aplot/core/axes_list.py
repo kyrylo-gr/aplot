@@ -30,7 +30,12 @@ class AxesList(_t.List[_T]):
     #         return self.__getitem__(item % len(self))[item // len(self)]
     #     return super().__getitem__(item)
 
-    def plot(self, x, data, *args, scalex: bool = True, scaley: bool = True, **kwargs):
+    def plot(self, x, data, *args, axes=None, **kwargs):
+        if axes is not None:
+            ax = self[axes]
+            ax.plot(x, data, *args, **kwargs)
+            return self
+
         if len(x) != len(data):
             if len(data) != len(self):
                 raise ValueError(
@@ -171,6 +176,7 @@ class AxesList(_t.List[_T]):
         def mapping(*args, **kwargs):
             for ax in self:
                 getattr(ax, key)(*args, **kwargs)
+            return self
 
         return mapping
         # return super().__getattribute__(key)
@@ -198,5 +204,4 @@ class AxesList(_t.List[_T]):
             if not isinstance(res, AxesList):
                 return AxesList(res)
             return res
-
-        return super(AxesList, self).__getitem__(key)
+        return super().__getitem__(key)
