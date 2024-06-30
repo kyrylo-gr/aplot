@@ -69,16 +69,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Get main branch version
-        id: get_main_version
-        run: |
-          git fetch origin main
-          git show origin/main: ${{env.package-name}}/__config__.py
-          main_version=$(git show origin/main: ${{env.package-name}}/__config__.py | grep '__version__' | cut -d'"' -f2)
-          echo "Main branch version: $main_version"
-          echo "main_version=$main_version" >> "$GITHUB_OUTPUT"
+        uses: actions/checkout@v3
 
       - name: Get PR branch version
         id: get_pr_version
@@ -86,6 +77,17 @@ jobs:
           pr_version=$(grep '__version__' ${{env.package-name}}/__config__.py | cut -d'"' -f2)
           echo "PR branch version: $pr_version"
           echo "pr_version=$pr_version" >> "$GITHUB_OUTPUT"
+
+      - name: Get main branch version
+        id: get_main_version
+        run: |
+          git fetch origin
+          git checkout origin/main -- ${{env.package-name}}/__config__.py
+          echo "Config file:"
+          git show origin/main: ${{env.package-name}}/__config__.py
+          main_version=$(grep '__version__' __config__.py | cut -d'"' -f2)
+          echo "Main branch version: $main_version"
+          echo "main_version=$main_version" >> "$GITHUB_OUTPUT"
 
       - name: Compare versions
         run: |

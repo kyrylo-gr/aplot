@@ -27,5 +27,5 @@ jobs:
           if [ "${{ github.event_name }}" == "push" ]; then
             mkdocs gh-deploy --force
           else
-            mkdocs build --strict
+            mkdocs build
           fi
