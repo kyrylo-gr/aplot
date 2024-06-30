@@ -74,20 +74,23 @@ jobs:
       - name: Get main branch version
         id: get_main_version
         run: |
-          git fetch origin main
+          git fetch main
+          git show origin/main: ${{env.package-name}}/__config__.py
           main_version=$(git show origin/main: ${{env.package-name}}/__config__.py | grep '__version__' | cut -d'"' -f2)
           echo "Main branch version: $main_version"
-          echo "::set-output name=main_version::$main_version"
+          echo "main_version=$main_version" >> "$GITHUB_OUTPUT"
 
       - name: Get PR branch version
         id: get_pr_version
         run: |
           pr_version=$(grep '__version__' ${{env.package-name}}/__config__.py | cut -d'"' -f2)
           echo "PR branch version: $pr_version"
-          echo "::set-output name=pr_version::$pr_version"
+          echo "pr_version=$pr_version" >> "$GITHUB_OUTPUT"
 
       - name: Compare versions
         run: |
+          echo "Main branch version: ${{ steps.get_main_version.outputs.main_version }}"
+          echo "PR branch version: ${{ steps.get_pr_version.outputs.pr_version }}"
           if [ "${{ steps.get_main_version.outputs.main_version }}" = "${{ steps.get_pr_version.outputs.pr_version }}" ]; then
             echo "Error: Version is the same as on the main branch"
             exit 1

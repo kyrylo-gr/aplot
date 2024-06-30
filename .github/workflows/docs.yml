@@ -23,4 +23,9 @@ jobs:
           restore-keys: |
             mkdocs-
       - run: pip install -r requirements-docs.txt
-      - run: mkdocs gh-deploy --force
+      - run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            mkdocs gh-deploy --force
+          else
+            mkdocs build --strict
+          fi
