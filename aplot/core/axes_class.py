@@ -193,10 +193,10 @@ class AAxes(
 
     def set(  # type: ignore
         self,
-        title: str | None | NoneType = noneType,
-        xlabel: str | None | NoneType = noneType,
-        ylabel: str | None | NoneType = noneType,
-        grid: bool | None = None,
+        title: _t.Optional[_t.Union[str, NoneType]] = noneType,
+        xlabel: _t.Optional[_t.Union[str, NoneType]] = noneType,
+        ylabel: _t.Optional[_t.Union[str, NoneType]] = noneType,
+        grid: _t.Optional[bool] = None,
         **kwargs,
     ):
         kwargs = filter_set_kwargs(AAxes, **kwargs)
@@ -355,8 +355,10 @@ class AAxes(
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         self.figure.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)  # type: ignore
+        return self
 
-    def plot(self, *args, keep_xlims: bool = False, keep_ylims: bool = False, **kwargs):
+    def plot(self, *args, keep_xlims: bool = False, keep_ylims: bool = False, axes=None, **kwargs):
+        del axes
         xlims = self.get_xlim() if keep_xlims else None
         ylims = self.get_ylim() if keep_ylims else None
         res = super().plot(*args, **kwargs)
