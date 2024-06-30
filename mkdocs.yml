@@ -60,7 +60,6 @@ plugins:
             separate_signature: true
             unwrap_annotated: true
             merge_init_into_class: true
-      watch: aplot/
 
 nav:
   - Getting Started:
