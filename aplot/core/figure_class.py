@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, List, Literal, Optional, TypeVar, Union, overload
 
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure as MplFigure
 
@@ -12,6 +13,8 @@ from .axes_list import AxesList
 
 _T = TypeVar("_T")
 _F = TypeVar("_F", bound="AFigure")
+
+_T = TypeVar("_T")
 
 
 class AFigure(MplFigure):
@@ -55,7 +58,6 @@ class AFigure(MplFigure):
 
     def show(self):  # type: ignore
         plt.show(self)
-
     @property
     def axes(self) -> "AxesList[AAxes]":  # type: ignore
         return AxesList(self._axstack.as_list())  # type: ignore
