@@ -134,7 +134,12 @@ class AxesList(List[_T]):
         **kwargs,
     ) -> _S: ...
     def axhspan(  # type: ignore
-        self: _S, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
+        self: _S,
+        ymin: float,
+        ymax: float,
+        xmin: float = ...,
+        xmax: float = ...,
+        **kwargs,
     ) -> _S: ...
     def axvspan(  # type: ignore
         self: _S, xmin: float, xmax: float, ymin: float = 0, ymax: float = 1, **kwargs
@@ -235,7 +240,10 @@ class AxesList(List[_T]):
         **kwargs,
     ) -> _S: ...
     def broken_barh(  # type: ignore
-        self: _S, xranges: Sequence[tuple[float, float]], yrange: tuple[float, float], **kwargs
+        self: _S,
+        xranges: Sequence[tuple[float, float]],
+        yrange: tuple[float, float],
+        **kwargs,
     ) -> _S: ...
     def stem(  # type: ignore
         self: _S,
@@ -734,7 +742,10 @@ class AxesList(List[_T]):
         useMathText: bool = ...,
     ) -> _S: ...
     def locator_params(  # type: ignore
-        self: _S, axis: Literal["both", "x", "y"] = ..., tight: bool | None = ..., **kwargs
+        self: _S,
+        axis: Literal["both", "x", "y"] = ...,
+        tight: bool | None = ...,
+        **kwargs,
     ) -> _S: ...
     def tick_params(self: _S, axis: Literal["x", "y", "both"] = ..., **kwargs) -> _S: ...  # type: ignore
     def set_axis_off(self: _S) -> _S: ...  # type: ignore
@@ -794,7 +805,9 @@ class AxesList(List[_T]):
         ymax: float = ...,
     ) -> _S: ...
     def set_yscale(  # type: ignore
-        self: _S, value: Literal["linear", "log", "symlog", "logit"] | ScaleBase, **kwargs
+        self: _S,
+        value: Literal["linear", "log", "symlog", "logit"] | ScaleBase,
+        **kwargs,
     ) -> _S: ...
     def minorticks_on(self: _S) -> _S: ...  # type: ignore
     def minorticks_off(self: _S) -> _S: ...  # type: ignore
@@ -845,3 +858,4 @@ class AxesList(List[_T]):
         self,
         key: Union[int, Tuple[Union[int, slice], ...], slice],
     ) -> _T: ...  # type: ignore
+    def flat(self) -> "AxesList[AAxes]": ...

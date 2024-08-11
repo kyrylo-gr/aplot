@@ -205,3 +205,12 @@ class AxesList(_t.List[_T]):
                 return AxesList(res)
             return res
         return super().__getitem__(key)
+
+    def flat(self):
+        res = []
+        for ax in self:
+            if isinstance(ax, AxesList):
+                res.extend(ax.flat())
+            else:
+                res.append(ax)
+        return AxesList(res)

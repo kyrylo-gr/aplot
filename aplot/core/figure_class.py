@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Literal, Optional, TypeVar, overload
+from typing import TYPE_CHECKING, Any, List, Literal, Optional, TypeVar, Union, overload
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure as MplFigure
@@ -8,8 +8,10 @@ if TYPE_CHECKING:
     from matplotlib.projections.polar import PolarAxes as MplPolarAxes
 
 from .axes_class import AAxes
+from .axes_list import AxesList
 
 _T = TypeVar("_T")
+_F = TypeVar("_F", bound="AFigure")
 
 
 class AFigure(MplFigure):
@@ -53,3 +55,32 @@ class AFigure(MplFigure):
 
     def show(self):  # type: ignore
         plt.show(self)
+
+    @property
+    def axes(self) -> "AxesList[AAxes]":  # type: ignore
+        return AxesList(self._axstack.as_list())  # type: ignore
+
+    def label_axes(
+        self: _F,
+        labels: Union[Literal["vertical", "horizontal"], List[str]] = "horizontal",
+        *,
+        axes: Optional["AxesList"] = None,
+    ) -> _F:
+        if axes is None:
+            axes = self.axes
+        axes_list = axes.flat()
+        if labels == "horizontal":
+            labels = [f"({chr(65+i)})" for i in range(len(axes_list))]
+        elif labels == "vertical":
+            raise NotImplementedError("Vertical labels not yet implemented")
+        for ax, label in zip(axes_list, labels):
+            ax.text(
+                0.02,
+                0.95,
+                label,
+                transform=ax.transAxes,
+                fontsize=14,
+                va="top",
+            )
+
+        return self
