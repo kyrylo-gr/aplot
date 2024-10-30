@@ -204,7 +204,10 @@ class AxesList(_t.List[_T]):
             if not isinstance(res, AxesList):
                 return AxesList(res)
             return res
-        return super().__getitem__(key)
+        res = super().__getitem__(key)
+        if not isinstance(res, (AAxes, AxesList)):
+            return AxesList(res)
+        return res
 
     def flat(self):
         res = []
@@ -215,3 +218,10 @@ class AxesList(_t.List[_T]):
                 res.append(ax)
         return AxesList(res)
 
+    def hist_z(self, z, **kwargs):
+        if len(z) == len(self):
+            for i, ax in enumerate(self):
+                ax.hist_z(z[i], **kwargs)
+            return self
+        self.map(lambda ax: ax.hist_z(z, **kwargs))
+        return self

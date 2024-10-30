@@ -1,6 +1,16 @@
 # flake8: noqa: E302, E704
 import datetime
-from typing import Callable, Generic, Literal, Sequence, TypeVar, Union, overload
+from typing import (
+    Callable,
+    Generic,
+    Iterable,
+    List,
+    Literal,
+    Sequence,
+    TypeVar,
+    Union,
+    overload,
+)
 
 import numpy as np
 from matplotlib.artist import Artist
@@ -73,11 +83,36 @@ class AAxes(MplAxes, Generic[_T]):
         pad: float = ...,
         *,
         y: float = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes": ...
-    def legend(self, *args, **kwargs) -> "AAxes": ...  # type: ignore
+    def legend(
+        self,
+        *args,
+        loc: Union[
+            int,
+            Literal[
+                "best",
+                "upper right",
+                "upper left",
+                "lower left",
+                "lower right",
+                "right",
+                "center left",
+                "center right",
+                "lower center",
+                "upper center",
+                "center",
+            ],
+        ] = "best",
+        **kwargs,
+    ) -> "AAxes": ...  # type: ignore
     def inset_axes(
-        self, bounds: Sequence[float], *, transform: Transform = ..., zorder: float = ..., **kwargs
+        self,
+        bounds: Sequence[float],
+        *,
+        transform: Transform = ...,
+        zorder: float = ...,
+        **kwargs,
     ) -> "AAxes": ...
     def indicate_inset(  # type: ignore
         self,
@@ -89,7 +124,7 @@ class AAxes(MplAxes, Generic[_T]):
         edgecolor: Color = ...,
         alpha: float = ...,
         zorder: float = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes": ...
     def indicate_inset_zoom(self, inset_ax: _Axes, **kwargs) -> "AAxes[Rectangle]": ...  # type: ignore
     def secondary_xaxis(  # type: ignore
@@ -97,14 +132,14 @@ class AAxes(MplAxes, Generic[_T]):
         location: Literal["top", "bottom", "left", "right"] | float,
         *,
         functions=...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[SecondaryAxis]": ...
     def secondary_yaxis(  # type: ignore
         self,
         location: Literal["top", "bottom", "left", "right"] | float,
         *,
         functions=...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[SecondaryAxis]": ...
     def text(self, x: float, y: float, s: str, fontdict: dict = ..., **kwargs) -> "AAxes[Text]": ...  # type: ignore
     def annotate(  # type: ignore
@@ -116,21 +151,35 @@ class AAxes(MplAxes, Generic[_T]):
         textcoords: str | Artist | Transform | Callable = ...,
         arrowprops: dict = ...,
         annotation_clip: bool | None = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[Annotation]": ...
+    @overload
     def axhline(  # type: ignore
-        self, y: float = 0, xmin: float = 0, xmax: float = 1, **kwargs
+        self, y: float, xmin: float = 0, xmax: float = 1, **kwargs
     ) -> "AAxes[Line2D]": ...
+    @overload
+    def axhline(  # type: ignore
+        self, y: Iterable[float], xmin: float = 0, xmax: float = 1, **kwargs
+    ) -> "AAxes[List[Line2D]]": ...
+    def axhline(  # type: ignore
+        self, y=0, xmin: float = 0, xmax: float = 1, **kwargs
+    ) -> "Union[AAxes[List[Line2D]], AAxes[Line2D]]": ...
     def axvline(  # type: ignore
         self, x: float = ..., ymin: float = ..., ymax: float = ..., **kwargs
     ) -> "AAxes[Line2D]": ...
+    def axvline(  # type: ignore
+        self, x: Iterable[float] = ..., ymin: float = ..., ymax: float = ..., **kwargs
+    ) -> "AAxes[List[Line2D]]": ...
+    def axvline(  # type: ignore
+        self, x: float = ..., ymin: float = ..., ymax: float = ..., **kwargs
+    ) -> "Union[AAxes[List[Line2D]], AAxes[Line2D]]": ...
     def axline(  # type: ignore
         self,
         xy1: tuple[float, float],
         xy2: tuple[float, float] = ...,
         *,
         slope: float = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[Line2D]": ...
     def axhspan(  # type: ignore
         self, ymin: float, ymax: float, xmin: float = ..., xmax: float = ..., **kwargs
@@ -146,7 +195,7 @@ class AAxes(MplAxes, Generic[_T]):
         colors: list[Color] = ...,
         linestyles: Literal["solid", "dashed", "dashdot", "dotted"] = ...,
         label: str = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[LineCollection]": ...
     def vlines(  # type: ignore
         self,
@@ -156,7 +205,7 @@ class AAxes(MplAxes, Generic[_T]):
         colors: list[Color] = ...,
         linestyles: Literal["solid", "dashed", "dashdot", "dotted"] = ...,
         label: str = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[LineCollection]": ...
     def eventplot(  # type: ignore
         self,
@@ -167,7 +216,7 @@ class AAxes(MplAxes, Generic[_T]):
         linewidths: float | ArrayLike = ...,
         colors: Color | list[Color] = ...,
         linestyles: str | tuple | list = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[list[EventCollection]]": ...
     def plot(self, *args, scalex=..., scaley=..., data=..., **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
     def plot_date(  # type: ignore
@@ -178,7 +227,7 @@ class AAxes(MplAxes, Generic[_T]):
         tz: datetime.tzinfo = ...,
         xdate: bool = ...,
         ydate: bool = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[list[Line2D]]": ...
     def loglog(self, *args, **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
     def semilogx(self, *args, **kwargs) -> "AAxes[list[Line2D]]": ...  # type: ignore
@@ -192,7 +241,7 @@ class AAxes(MplAxes, Generic[_T]):
         detrend: Callable = ...,
         usevlines: bool = True,
         maxlags: int = 10,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, bool, int]]": ...
     def step(  # type: ignore
         self,
@@ -201,7 +250,7 @@ class AAxes(MplAxes, Generic[_T]):
         *args,
         where: Literal["pre", "post", "mid"] = ...,
         data=...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[list[Line2D]]": ...
     def bar(  # type: ignore
         self,
@@ -211,7 +260,7 @@ class AAxes(MplAxes, Generic[_T]):
         bottom: float | ArrayLike = ...,
         *,
         align: Literal["center", "edge"] = "center",
-        **kwargs
+        **kwargs,
     ) -> "AAxes[BarContainer]": ...
     def barh(  # type: ignore
         self,
@@ -221,7 +270,7 @@ class AAxes(MplAxes, Generic[_T]):
         left: float | ArrayLike = ...,
         *,
         align: Literal["center", "edge"] = "center",
-        **kwargs
+        **kwargs,
     ) -> "AAxes[BarContainer]": ...
     def bar_label(  # type: ignore
         self,
@@ -231,10 +280,13 @@ class AAxes(MplAxes, Generic[_T]):
         fmt: str = "%g",
         label_type: Literal["edge", "center"] = "edge",
         padding: float = 0,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[list[Text]]": ...
     def broken_barh(  # type: ignore
-        self, xranges: Sequence[tuple[float, float]], yrange: tuple[float, float], **kwargs
+        self,
+        xranges: Sequence[tuple[float, float]],
+        yrange: tuple[float, float],
+        **kwargs,
     ) -> "AAxes[BrokenBarHCollection]": ...
     def stem(  # type: ignore
         self,
@@ -245,7 +297,7 @@ class AAxes(MplAxes, Generic[_T]):
         bottom: float = 0,
         label: str | None = None,
         use_line_collection: bool = True,
-        orientation: str = "verical"
+        orientation: str = "verical",
     ) -> "AAxes[StemContainer]": ...
     def pie(  # type: ignore
         self,
@@ -266,7 +318,7 @@ class AAxes(MplAxes, Generic[_T]):
         frame: bool = False,
         rotatelabels: bool = False,
         *,
-        normalize: bool = True
+        normalize: bool = True,
     ) -> "AAxes[tuple[list[Wedge], list[Text], list[Text]]]": ...
     def errorbar(  # type: ignore
         self,
@@ -285,7 +337,7 @@ class AAxes(MplAxes, Generic[_T]):
         xuplims: bool = False,
         errorevery: int = 1,
         capthick: float | None = None,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[ErrorbarContainer]": ...
     def boxplot(  # type: ignore
         self,
@@ -356,7 +408,7 @@ class AAxes(MplAxes, Generic[_T]):
         *,
         edgecolors: Color = ...,
         plotnonfinite: bool = False,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[PathCollection]": ...
     def hexbin(  # type: ignore
         self,
@@ -378,7 +430,7 @@ class AAxes(MplAxes, Generic[_T]):
         reduce_C_function=...,
         mincnt: int | None = None,
         marginals: bool = False,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[PolyCollection]": ...
     def arrow(self, x: float, y: float, dx: float, dy: float, **kwargs) -> "AAxes[FancyArrow]": ...  # type: ignore
     def quiverkey(  # type: ignore
@@ -395,7 +447,7 @@ class AAxes(MplAxes, Generic[_T]):
         where: ArrayLike = ...,
         interpolate: bool = ...,
         step: Literal["pre", "post", "mid"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[PolyCollection]": ...
     def fill_betweenx(  # type: ignore
         self,
@@ -405,7 +457,7 @@ class AAxes(MplAxes, Generic[_T]):
         where: ArrayLike = ...,
         step: Literal["pre", "post", "mid"] = ...,
         interpolate: bool = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[PolyCollection]": ...
     def imshow(  # type: ignore
         self,
@@ -425,7 +477,7 @@ class AAxes(MplAxes, Generic[_T]):
         filterrad: float = 4,
         resample: bool = ...,
         url: str = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[AxesImage]": ...
     def pcolor(  # type: ignore
         self,
@@ -436,7 +488,7 @@ class AAxes(MplAxes, Generic[_T]):
         cmap: str | Colormap = ...,
         vmin: float | None = None,
         vmax: float | None = None,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[Collection]": ...
     def pcolormesh(  # type: ignore
         self,
@@ -448,7 +500,7 @@ class AAxes(MplAxes, Generic[_T]):
         vmax: float | None = None,
         shading: Literal["flat", "nearest", "gouraud", "auto"] = ...,
         antialiased=...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[QuadMesh]": ...
     def pcolorfast(  # type: ignore
         self,
@@ -458,7 +510,7 @@ class AAxes(MplAxes, Generic[_T]):
         cmap: str | Colormap = ...,
         vmin: float | None = None,
         vmax: float | None = None,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[AxesImage, PcolorImage, QuadMesh]]": ...
     def contour(self, *args, **kwargs) -> "AAxes[QuadContourSet]": ...  # type: ignore
     def contourf(self, *args, **kwargs) -> "AAxes[QuadContourSet]": ...  # type: ignore
@@ -481,7 +533,7 @@ class AAxes(MplAxes, Generic[_T]):
         color: Color | None = ...,
         label: str | None = ...,
         stacked: bool = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[list[list[float]], list[float], BarContainer | list]]": ...
     @overload
     def hist(  # type: ignore
@@ -501,7 +553,7 @@ class AAxes(MplAxes, Generic[_T]):
         color: Color | None = None,
         label: str | None = None,
         stacked: bool = False,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[list[float], list[float], BarContainer | list]]": ...
     def stairs(  # type: ignore
         self,
@@ -511,7 +563,7 @@ class AAxes(MplAxes, Generic[_T]):
         orientation: Literal["vertical", "horizontal"] = "vertical",
         baseline: float | ArrayLike | None = 0,
         fill: bool = False,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[StepPatch]": ...
     def hist2d(  # type: ignore
         self,
@@ -523,8 +575,10 @@ class AAxes(MplAxes, Generic[_T]):
         weights=...,
         cmin: float | None = None,
         cmax: float | None = None,
-        **kwargs
-    ) -> "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, tuple[float, float] | None]]": ...
+        **kwargs,
+    ) -> (
+        "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, tuple[float, float] | None]]"
+    ): ...
     def psd(  # type: ignore
         self,
         x: Sequence,
@@ -538,7 +592,7 @@ class AAxes(MplAxes, Generic[_T]):
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale_by_freq: bool = ...,
         return_line: bool = False,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
     def csd(  # type: ignore
         self,
@@ -554,7 +608,7 @@ class AAxes(MplAxes, Generic[_T]):
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale_by_freq: bool = ...,
         return_line: bool = False,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
     def magnitude_spectrum(  # type: ignore
         self,
@@ -565,7 +619,7 @@ class AAxes(MplAxes, Generic[_T]):
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale: Literal["default", "linear", "dB"] = "linear",
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
     def angle_spectrum(  # type: ignore
         self,
@@ -575,7 +629,7 @@ class AAxes(MplAxes, Generic[_T]):
         window: Callable | np.ndarray = ...,
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
     def phase_spectrum(  # type: ignore
         self,
@@ -585,7 +639,7 @@ class AAxes(MplAxes, Generic[_T]):
         window: Callable | np.ndarray = ...,
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, Line2D]]": ...
     def cohere(  # type: ignore
         self,
@@ -600,7 +654,7 @@ class AAxes(MplAxes, Generic[_T]):
         pad_to: int = ...,
         sides: Literal["default", "onesided", "twosided"] = ...,
         scale_by_freq: bool = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray]]": ...
     def specgram(  # type: ignore
         self,
@@ -620,7 +674,7 @@ class AAxes(MplAxes, Generic[_T]):
         scale: Literal["default", "linear", "dB"] = "dB",
         vmin=...,
         vmax=...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, AxesImage]]": ...
     def spy(  # type: ignore
         self,
@@ -630,7 +684,7 @@ class AAxes(MplAxes, Generic[_T]):
         markersize=...,
         aspect: Literal["equal", "auto", None] | float = "equal",
         origin: Literal["upper", "lower"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[AxesImage | Line2D]": ...  # type: ignore
     def matshow(self, Z: ArrayLike, **kwargs) -> "AAxes[AxesImage]": ...  # type: ignore
     def violinplot(  # type: ignore
@@ -720,7 +774,7 @@ class AAxes(MplAxes, Generic[_T]):
         visible: bool | None = ...,
         which: Literal["major", "minor", "both"] = ...,
         axis: Literal["both", "x", "y"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[None]": ...
     def ticklabel_format(  # type: ignore
         self,
@@ -730,7 +784,7 @@ class AAxes(MplAxes, Generic[_T]):
         scilimits=...,
         useOffset: bool | float = ...,
         useLocale: bool = ...,
-        useMathText: bool = ...
+        useMathText: bool = ...,
     ) -> "AAxes[None]": ...
     def locator_params(  # type: ignore
         self, axis: Literal["both", "x", "y"] = ..., tight: bool | None = ..., **kwargs
@@ -745,7 +799,7 @@ class AAxes(MplAxes, Generic[_T]):
         labelpad: float = ...,
         *,
         loc: Literal["left", "center", "right"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[None]": ...
     def invert_xaxis(self) -> "AAxes[None]": ...  # type: ignore
     def set_xbound(self, lower: float | None = ..., upper: float | None = ...) -> "AAxes[None]": ...  # type: ignore
@@ -757,7 +811,7 @@ class AAxes(MplAxes, Generic[_T]):
         emit: bool = ...,
         auto: bool | None = ...,
         xmin: float = ...,
-        xmax: float = ...
+        xmax: float = ...,
     ) -> "AAxes[tuple[float, float]]": ...
     @overload
     def set_xlim(  # type: ignore
@@ -768,7 +822,7 @@ class AAxes(MplAxes, Generic[_T]):
         auto: bool | None = ...,
         *,
         xmin: float = ...,
-        xmax: float = ...
+        xmax: float = ...,
     ) -> "AAxes[tuple[float, float]]": ...
     def set_xscale(self, value: ..., **kwargs) -> "AAxes[None]": ...  # type: ignore
     def set_ylabel(  # type: ignore
@@ -778,7 +832,7 @@ class AAxes(MplAxes, Generic[_T]):
         labelpad: float = ...,
         *,
         loc: Literal["bottom", "center", "top"] = ...,
-        **kwargs
+        **kwargs,
     ) -> "AAxes[None]": ...
     def invert_yaxis(self) -> "AAxes[None]": ...  # type: ignore
     def set_ybound(self, lower: float | None = ..., upper: float | None = ...) -> "AAxes[None]": ...  # type: ignore
@@ -790,7 +844,7 @@ class AAxes(MplAxes, Generic[_T]):
         auto: bool | None = ...,
         *,
         ymin: float = ...,
-        ymax: float = ...
+        ymax: float = ...,
     ) -> "AAxes[None]": ...
     def set_yscale(  # type: ignore
         self, value: Literal["linear", "log", "symlog", "logit"] | ScaleBase, **kwargs
@@ -819,8 +873,26 @@ class AAxes(MplAxes, Generic[_T]):
         pad: float = ...,
         h_pad: float = ...,
         w_pad: float = ...,
-        rect: Sequence[float] = ...
+        rect: Sequence[float] = ...,
     ) -> _S: ...
     def __add__(self, other) -> "AxesList": ...
-    def set_xticks(self, ticks: ArrayLike, labels: ArrayLike | None = None) -> "AAxes[None]": ...
-    def set_yticks(self, ticks: ArrayLike, labels: ArrayLike | None = None) -> "AAxes[None]": ...
+    def set_xticks(
+        self, ticks: ArrayLike, labels: ArrayLike | None = None
+    ) -> "AAxes[None]": ...
+    def set_yticks(
+        self, ticks: ArrayLike, labels: ArrayLike | None = None
+    ) -> "AAxes[None]": ...
+    def colorbar(self: _Axes, *args, **kwargs) -> _Axes: ...
+    def hist_z(  # type: ignore
+        self,
+        z,
+        bins: None | int | ArrayLike = ...,
+        range=...,
+        density: bool = False,
+        weights=...,
+        cmin: float | None = None,
+        cmax: float | None = None,
+        **kwargs,
+    ) -> (
+        "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, tuple[float, float] | None]]"
+    ): ...

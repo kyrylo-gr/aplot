@@ -854,8 +854,21 @@ class AxesList(List[_T]):
     ) -> _S: ...
     def map(self: _S, func: Callable[[AAxes], Any]) -> _S: ...
     def suptitle(self: _S, title: str) -> _S: ...
-    def __getitem__(
+    def __getitem__(  # type: ignore
         self,
         key: Union[int, Tuple[Union[int, slice], ...], slice],
     ) -> _T: ...  # type: ignore
     def flat(self) -> "AxesList[AAxes]": ...
+    def hist_z(  # type: ignore
+        self,
+        z,
+        bins: None | int | ArrayLike = ...,
+        range=...,
+        density: bool = False,
+        weights=...,
+        cmin: float | None = None,
+        cmax: float | None = None,
+        **kwargs,
+    ) -> (
+        "AAxes[tuple[np.ndarray, np.ndarray, np.ndarray, tuple[float, float] | None]]"
+    ): ...
