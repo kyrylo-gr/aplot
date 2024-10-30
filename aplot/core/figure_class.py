@@ -11,7 +11,6 @@ from typing import (
     overload,
 )
 
-
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure as MplFigure
 
@@ -69,6 +68,7 @@ class AFigure(MplFigure):
 
     def show(self):  # type: ignore
         plt.show(self)
+
     @property
     def axes(self) -> "AxesList[AAxes]":  # type: ignore
         return AxesList(self._axstack.as_list())  # type: ignore
