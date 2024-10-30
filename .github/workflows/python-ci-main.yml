@@ -92,9 +92,11 @@ jobs:
         run: |
           echo "Main branch version: ${{ steps.get_main_version.outputs.main_version }}"
           echo "PR branch version: ${{ steps.get_pr_version.outputs.pr_version }}"
-          if [ "${{ steps.get_main_version.outputs.main_version }}" = "${{ steps.get_pr_version.outputs.pr_version }}" ]; then
-            echo "Error: Version is the same as on the main branch"
-            exit 1
-          else
-            echo "Ok: Version is different from the main branch"
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            if [ "${{ steps.get_main_version.outputs.main_version }}" = "${{ steps.get_pr_version.outputs.pr_version }}" ]; then
+              echo "Error: Version is the same as on the main branch"
+              exit 1
+            else
+              echo "Ok: Version is different from the main branch"
+            fi
           fi

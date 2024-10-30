@@ -19,6 +19,7 @@ from .utils import (
 )
 
 _T = _t.TypeVar("_T")
+_R = _t.TypeVar("_R")
 if _t.TYPE_CHECKING:
     from .figure_class import AFigure
 
@@ -212,29 +213,24 @@ class AAxes(
         super().set(**filter_none_types(kwargs))
         return self
 
-    def hist2d(
+    def hist2d(  # type: ignore
         self,
         x,
         y=None,
-        bins=10,
-        range=None,  # pylint: disable=redefined-builtin
-        density=False,
-        weights=False,
-        cmin=None,
-        cmax=None,
+        *args,
         **kwargs,
     ):
         if y is None:
             x = np.array(x)
             x = x[:, 0]
             y = x[:, 1]
-        return super().hist2d(x, y, bins, range, density, weights, cmin, cmax, **kwargs)
+        return super().hist2d(x, y, *args, **kwargs)
 
     def z_parametric(self, z, **kwargs):
         self.plot(np.real(z), np.imag(z), **kwargs)
         return self
 
-    def z_historograms(self, z, **kwargs):
+    def hist_z(self, z, **kwargs):
         self.hist2d(np.real(z), np.imag(z), **kwargs)
         return self
 
@@ -261,8 +257,14 @@ class AAxes(
         colorbar: bool = True,
         **kwargs,
     ):
-        if x is not None and y is not None and (len(data) != len(y) or len(data[0]) != len(x)):
-            raise ValueError(f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}")
+        if (
+            x is not None
+            and y is not None
+            and (len(data) != len(y) or len(data[0]) != len(x))
+        ):
+            raise ValueError(
+                f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}"
+            )
 
         imshow_kwargs: dict = imshow_kwds(x, y)
         imshow_kwargs.update(
@@ -298,6 +300,7 @@ class AAxes(
                 raise ValueError("The figure is None cannot add colorbar")
             cbar = fig.colorbar(im, cax=cax, orientation="vertical")
             cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
+            cbar.ax.set_rasterized(False)
         else:
             cbar = None
 
@@ -318,7 +321,9 @@ class AAxes(
         elif len(args) == 3:
             x, y, data = args
         elif len(args) > 0:
-            raise ValueError(f"Wrong number of arguments: {len(args)}. Should be 0, 1 or 3.")
+            raise ValueError(
+                f"Wrong number of arguments: {len(args)}. Should be 0, 1 or 3."
+            )
 
         if data is None:
             raise ValueError("Data should be provided")
@@ -357,7 +362,14 @@ class AAxes(
         self.figure.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)  # type: ignore
         return self
 
-    def plot(self, *args, keep_xlims: bool = False, keep_ylims: bool = False, axes=None, **kwargs):
+    def plot(
+        self,
+        *args,
+        keep_xlims: bool = False,
+        keep_ylims: bool = False,
+        axes=None,
+        **kwargs,
+    ):
         del axes
         xlims = self.get_xlim() if keep_xlims else None
         ylims = self.get_ylim() if keep_ylims else None
@@ -368,9 +380,34 @@ class AAxes(
             self.set_ylim(*ylims)
         return res
 
+    def axhline(self, y=0, xmin=0, xmax=1, **kwargs) -> "AAxes":  # type: ignore
+        if isinstance(y, _t.Iterable):
+            return self.update_result(
+                [self.axhline(y_, xmin=xmin, xmax=xmax, **kwargs).res for y_ in y]
+            )
+        return self.update_result(super().axhline(y, xmin=xmin, xmax=xmax, **kwargs))
+
+    def axvline(self, x=0, ymin=0, ymax=1, **kwargs) -> "AAxes":  # type: ignore
+        if isinstance(x, _t.Iterable):
+            return self.update_result(
+                [self.axvline(x_, ymin=ymin, ymax=ymax, **kwargs).res for x_ in x]
+            )
+        return self.update_result(super().axvline(x, ymin=ymin, ymax=ymax, **kwargs))
+
     def __add__(self, other):
         from .axes_list import AxesList
 
         if isinstance(other, list):
             return AxesList([self] + other)  # type: ignore
         return AxesList([self, other])  # type: ignore
+
+    def update_result(self, result: _R) -> "AAxes[_R]":
+        self._last_result = result
+        return self  # type: ignore
+
+    def colorbar(self, label: _t.Optional[str] = None, *args, **kwargs):
+        c = self.res
+        cbar = self.fig.colorbar(c, ax=self)
+        if label is not None:
+            cbar.set_label(label)
+        return self
