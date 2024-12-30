@@ -1,7 +1,5 @@
 name: Publish-Main-PyPi
 
-
-name: Publish-Main-PyPi
 env:
   package-name: aplot
 

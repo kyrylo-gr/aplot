@@ -126,12 +126,29 @@ WRAPPER_METHODS = {
 FILTER_KWARGS = {"hist2d", QuadMesh}
 
 
+class ClassicReturnAxis:
+    def __init__(self, axes: "AAxes"):
+        self.axes = axes
+        self._previous_state = False
+
+    def __enter__(self):
+        self._previous_state = self.axes._classical_return
+        self.axes._classical_return = True
+        return self.axes
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.axes._classical_return = self._previous_state
+        if exc_type is not None:
+            raise
+
+
 class AAxes(
     MplAxes,
     _t.Generic[_T],
 ):
     name = "AAxis"  # Give a name for the matplotlib registry
     _last_result = None
+    _classical_return = False
     # _fit_result: FitResult | None = None
     # __all__ = MplAxes.__all__ + ["fit", "last_result", "fit_result", "res", "set"]
     # __dict__ = MplAxes.__dict__  ("fit", "last_result", "fit_result", "res", "set")
@@ -183,7 +200,7 @@ class AAxes(
 
             def wrapper(*args, **kwargs):
                 result = func(*args, **kwargs)
-                if isinstance(result, (MplAxes, AAxes)):
+                if isinstance(result, (MplAxes, AAxes)) or self._classical_return:
                     return result
                 self._last_result = result
                 return self
@@ -210,8 +227,8 @@ class AAxes(
                 "ylabel": ylabel,
             }
         )
-        super().set(**filter_none_types(kwargs))
-        return self
+        return super().set(**filter_none_types(kwargs))
+        # return self
 
     def hist2d(  # type: ignore
         self,
@@ -222,17 +239,21 @@ class AAxes(
     ):
         if y is None:
             x = np.array(x)
-            x = x[:, 0]
-            y = x[:, 1]
+            y = x[..., 1]
+            x = x[..., 0]
         return super().hist2d(x, y, *args, **kwargs)
 
+    def hist(self, *args, **kwargs):
+        with ClassicReturnAxis(self):
+            return super().hist(*args, **kwargs)
+
     def z_parametric(self, z, **kwargs):
-        self.plot(np.real(z), np.imag(z), **kwargs)
-        return self
+        return self.plot(np.real(z), np.imag(z), **kwargs)
+        # return self
 
     def hist_z(self, z, **kwargs):
-        self.hist2d(np.real(z), np.imag(z), **kwargs)
-        return self
+        return self.hist2d(np.real(z), np.imag(z), **kwargs)
+        # return self
 
     def imshow(  # type: ignore
         self,
@@ -303,8 +324,8 @@ class AAxes(
             cbar.ax.set_rasterized(False)
         else:
             cbar = None
-
-        return self
+        return im
+        # return self
 
     def pcolorfast(  # type: ignore
         self,
@@ -349,7 +370,8 @@ class AAxes(
         if colorbar:
             cbar = fig.colorbar(im, cax=cax, orientation="vertical")
             cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
-        return self
+        return im
+        # return self
 
     def autoaxis(self, level: int = 0, func_name="plot") -> "AAxes":
         variables = get_auto_args(level, func_name)
@@ -407,7 +429,11 @@ class AAxes(
 
     def colorbar(self, label: _t.Optional[str] = None, *args, **kwargs):
         c = self.res
+        assert c is not None
         cbar = self.fig.colorbar(c, ax=self)
         if label is not None:
             cbar.set_label(label)
         return self
+
+    def classic_return(self):
+        return ClassicReturnAxis(self)

@@ -12,6 +12,7 @@ from typing import (
 )
 
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.figure import Figure as MplFigure
 
 if TYPE_CHECKING:
@@ -76,7 +77,7 @@ class AFigure(MplFigure):
     def label_axes(
         self: _F,
         labels: Union[
-            Literal["vertical", "horizontal"], List[str], List[int]
+            Literal["vertical", "horizontal"], List[Optional[Union[str, int]]]
         ] = "horizontal",
         *,
         axes: Optional["AxesList"] = None,
@@ -94,9 +95,9 @@ class AFigure(MplFigure):
             labels (Union[Literal[&quot;vertical&quot;, &quot;horizontal&quot;], List[str]], optional):
                 - "vertical": Label the axes vertically first, then horizontally.
                 - "horizontal": Label the axes horizontally first, then vertically.
-                - List[str]: List of labels to use for each axes.
-                - List[int]: Order of axes in which to label.
-                    For example, [2, 0, 1] will label the third axes first, then the first, and finally the second.
+                - List[str | int | None]: List of labels to use for each axes.
+                    if None, the axes will not be labeled.
+                    if int, the axes will be labeled with the corresponding alphabet.
                 Defaults to "horizontal".
             axes (Optional[&quot;AxesList&quot;], optional): _description_. Defaults to None.
             label_position (Union[Tuple[float, float], List[Tuple[float, float]]], optional):
@@ -129,15 +130,26 @@ class AFigure(MplFigure):
         """
         if axes is None:
             axes = self.axes
-        axes_list = axes.flat()
-        axes_list = [ax for ax in axes_list if not detect_minor_axes(ax)]
+        axes_list = filter_secondary_axes(axes.flat())
+
         if isinstance(labels, list):
             if len(labels) != len(axes_list):
                 raise ValueError(
                     "Length of labels should be equal to the number of axes"
                 )
-            if isinstance(labels[0], int):
-                labels = [f"({chr(65+((int(i)-1)%len(axes_list)))})" for i in labels]
+
+            labels = [
+                (
+                    (
+                        f"({chr(65+((int(i)-1) % len(axes_list)))})"
+                        if isinstance(i, int)
+                        else str(i)
+                    )
+                    if i is not None
+                    else None
+                )
+                for i in labels
+            ]
         elif labels == "horizontal":
             labels = [f"({chr(65+i)})" for i in range(len(axes_list))]
         elif labels == "vertical":
@@ -148,6 +160,8 @@ class AFigure(MplFigure):
         else:
             label_position_each = True
         for i, (ax, label) in enumerate(zip(axes_list, labels)):
+            if label is None:
+                continue
             text_kwargs = copy(kwargs)
             x_pos: float = label_position[i][0] if label_position_each else label_position[0]  # type: ignore
             y_pos: float = label_position[i][1] if label_position_each else label_position[1]  # type: ignore
@@ -158,14 +172,12 @@ class AFigure(MplFigure):
             text_kwargs.setdefault("va", "top")
 
             label = str(label).upper() if capitalize else str(label).lower()
-
-            ax.text(
+            getattr(ax, "text2D", ax.text)(
                 x_pos,
                 y_pos,
                 label,
                 **text_kwargs,
             )
-
         return self
 
 
@@ -181,3 +193,24 @@ def detect_minor_axes(ax: "AAxes") -> bool:
     if hasattr(ax, "_colorbar"):
         return True
     return False
+
+
+def filter_secondary_axes(axes: "List[AAxes]") -> "List[AAxes]":
+    """Detect and remove if the axes are secondary axes.
+
+    Args:
+        axes (List[AAxes]): List of axes
+
+    Returns:
+        List[AAxes]: List of secondary axes
+    """
+    axes = [ax for ax in axes if not detect_minor_axes(ax)]
+    axes_list: "List[AAxes]" = []
+    for ax1 in axes:
+        for ax2 in axes_list:
+            if np.isclose(ax1.get_position().bounds, ax2.get_position().bounds).all():
+                break
+        else:
+            axes_list.append(ax1)
+
+    return axes_list
