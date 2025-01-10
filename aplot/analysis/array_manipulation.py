@@ -1,7 +1,6 @@
 import typing as _t
 
 import numpy as np
-import scipy
 
 ArrayLike = _t.Union[np.ndarray, _t.List]
 
@@ -29,6 +28,8 @@ def argmin2d(
         Tuple[int, int]: index_y, index_x, i.e. the min value is d[index_y, index_x]
     """
     if filter_ and filter_ > 1:
+        import scipy
+
         d = scipy.ndimage.uniform_filter(d, size=3, mode="nearest")
 
     if x_mask is not None:
@@ -133,7 +134,9 @@ def array_from_span(
     return res
 
 
-def get_z(I: np.ndarray, Q: np.ndarray) -> np.ndarray:  # pylint: disable=invalid-name # noqa: E741
+def get_z(
+    I: np.ndarray, Q: np.ndarray
+) -> np.ndarray:  # pylint: disable=invalid-name # noqa: E741
     min_len = min(len(I), len(Q))
     return I[:min_len] + 1j * Q[:min_len]
 

@@ -41,7 +41,7 @@ class AFigure(MplFigure):
         # Ensuring that the custom axes class is used
         if "projection" not in kwargs and "polar" not in kwargs:
             kwargs.update({"axes_class": AAxes})
-        return super().add_subplot(*args, **kwargs)
+        return super().add_subplot(*args, **kwargs)  # type: ignore
 
     def savefig(self, fname: Any, *, transparent=None, **kwargs):  # type: ignore
         super().savefig(fname, transparent=transparent, **kwargs)
@@ -76,7 +76,7 @@ class AFigure(MplFigure):
 
     def label_axes(
         self: _F,
-        labels: Union[
+        labels: Union[  # type: ignore
             Literal["vertical", "horizontal"], List[Optional[Union[str, int]]]
         ] = "horizontal",
         *,
@@ -87,6 +87,7 @@ class AFigure(MplFigure):
         ),
         fontsize: Optional[Union[int, float, List[Union[float, int]]]] = None,
         capitalize: bool = False,
+        label_titles: Optional[List[str]] = None,
         **kwargs,
     ) -> _F:
         """Label the axes of the figure.
@@ -138,10 +139,10 @@ class AFigure(MplFigure):
                     "Length of labels should be equal to the number of axes"
                 )
 
-            labels = [
+            labels: List[Optional[str]] = [
                 (
                     (
-                        f"({chr(65+((int(i)-1) % len(axes_list)))})"
+                        f"({chr(65+((int(i)-1) % len(axes_list))).lower()})"
                         if isinstance(i, int)
                         else str(i)
                     )
@@ -150,8 +151,23 @@ class AFigure(MplFigure):
                 )
                 for i in labels
             ]
+            if capitalize:
+                labels = [(label.upper() if label else label) for label in labels]
+
+            if label_titles is not None:
+                for i, label in enumerate(label_titles):
+                    if labels[i] is not None:
+                        labels[i] = f"{labels[i]} {label}"
+
         elif labels == "horizontal":
-            labels = [f"({chr(65+i)})" for i in range(len(axes_list))]
+            labels = [f"({chr(65+i)})".lower() for i in range(len(axes_list))]
+            if capitalize:
+                labels = [(label.upper() if label else label) for label in labels]
+            if label_titles is not None:
+                for i, label in enumerate(label_titles):
+                    if labels[i] is not None:
+                        labels[i] = f"{labels[i]} {label}"
+
         elif labels == "vertical":
             raise NotImplementedError("Vertical labels not yet implemented")
 
@@ -171,7 +187,6 @@ class AFigure(MplFigure):
             text_kwargs.setdefault("transform", ax.transAxes)
             text_kwargs.setdefault("va", "top")
 
-            label = str(label).upper() if capitalize else str(label).lower()
             getattr(ax, "text2D", ax.text)(
                 x_pos,
                 y_pos,
