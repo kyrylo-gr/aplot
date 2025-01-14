@@ -81,7 +81,9 @@ class AFigure(MplFigure):
         ] = "horizontal",
         *,
         axes: Optional["AxesList"] = None,
-        label_position: Union[Tuple[float, float], List[Tuple[float, float]]] = (
+        label_position: Union[
+            Tuple[float, float], List[Optional[Tuple[float, float]]]
+        ] = (
             0.02,
             0.95,
         ),
@@ -176,7 +178,9 @@ class AFigure(MplFigure):
         else:
             label_position_each = True
         for i, (ax, label) in enumerate(zip(axes_list, labels)):
-            if label is None:
+            if label is None or (
+                label_position_each is True and label_position[i] is None
+            ):
                 continue
             text_kwargs = copy(kwargs)
             x_pos: float = label_position[i][0] if label_position_each else label_position[0]  # type: ignore
