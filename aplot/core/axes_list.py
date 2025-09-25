@@ -3,7 +3,7 @@ import typing as _t
 import numpy as np
 
 from .axes_class import AAxes
-from .utils import filter_set_kwargs, pop_from_dict
+from .utils import filter_set_kwargs, pop_from_dict, get_edge_points
 
 # from matplotlib import pyplot as plt
 
@@ -112,6 +112,8 @@ class AxesList(_t.List[_T]):
         else:
             raise ValueError("Plot_format should be either bode or real_imag")
 
+        x = get_edge_points(x)
+        y = get_edge_points(y)
         kwargs_without_xlabel = pop_from_dict(kwargs, "xlabel")
         self[0].pcolorfast(x=x, y=y, data=data1, **kwargs_without_xlabel)
         self[1].pcolorfast(x=x, y=y, data=data2, **kwargs)

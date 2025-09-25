@@ -29,7 +29,6 @@ _T = TypeVar("_T")
 
 
 class AFigure(MplFigure):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -69,6 +68,11 @@ class AFigure(MplFigure):
 
     def show(self):  # type: ignore
         plt.show(self)
+        return self
+
+    def close(self):  # type: ignore
+        plt.close(self)
+        return self
 
     @property
     def axes(self) -> "AxesList[AAxes]":  # type: ignore
@@ -183,8 +187,12 @@ class AFigure(MplFigure):
             ):
                 continue
             text_kwargs = copy(kwargs)
-            x_pos: float = label_position[i][0] if label_position_each else label_position[0]  # type: ignore
-            y_pos: float = label_position[i][1] if label_position_each else label_position[1]  # type: ignore
+            x_pos: float = (
+                label_position[i][0] if label_position_each else label_position[0]
+            )  # type: ignore
+            y_pos: float = (
+                label_position[i][1] if label_position_each else label_position[1]
+            )  # type: ignore
             if fontsize is not None:
                 fs = fontsize[i] if isinstance(fontsize, (list, tuple)) else fontsize
                 text_kwargs.setdefault("fontsize", fs)

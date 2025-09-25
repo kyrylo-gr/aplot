@@ -1,5 +1,7 @@
 import typing as _t
 
+import numpy as np
+
 from .typing import NoneType
 
 if _t.TYPE_CHECKING:
@@ -95,3 +97,16 @@ def pop_from_dict(data, keys: _t.Union[str, _t.Tuple[str, ...]]):
         if key in main:
             main.pop(key)
     return main
+
+
+def get_center_points(x):
+    return x[:-1] + np.diff(x) / 2
+
+
+def get_edge_points(m):
+    m = np.asarray(m)
+    edges = np.empty(m.size + 1)
+    edges[1:-1] = (m[:-1] + m[1:]) / 2  # inner edges
+    edges[0] = m[0] - (m[1] - m[0]) / 2  # extrapolate left edge
+    edges[-1] = m[-1] + (m[-1] - m[-2]) / 2  # extrapolate right edge
+    return edges

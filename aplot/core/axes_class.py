@@ -278,14 +278,8 @@ class AAxes(
         colorbar: bool = True,
         **kwargs,
     ):
-        if (
-            x is not None
-            and y is not None
-            and (len(data) != len(y) or len(data[0]) != len(x))
-        ):
-            raise ValueError(
-                f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}"
-            )
+        if x is not None and y is not None and (len(data) != len(y) or len(data[0]) != len(x)):
+            raise ValueError(f"Wrong shapes. {len(data)} != {len(y)} or {len(data[0])} != {len(x)}")
 
         imshow_kwargs: dict = imshow_kwds(x, y)
         imshow_kwargs.update(
@@ -321,7 +315,7 @@ class AAxes(
                 raise ValueError("The figure is None cannot add colorbar")
             cbar = fig.colorbar(im, cax=cax, orientation="vertical")
             cbar.ax.set_ylabel(kwargs.get("bar_label", ""))
-            cbar.ax.set_rasterized(False)
+            cbar.ax.set_rasterized(kwargs.get("bar_rasterized", kwargs.get("rasterized", False)))
         else:
             cbar = None
         return im
@@ -342,9 +336,7 @@ class AAxes(
         elif len(args) == 3:
             x, y, data = args
         elif len(args) > 0:
-            raise ValueError(
-                f"Wrong number of arguments: {len(args)}. Should be 0, 1 or 3."
-            )
+            raise ValueError(f"Wrong number of arguments: {len(args)}. Should be 0, 1 or 3.")
 
         if data is None:
             raise ValueError("Data should be provided")
